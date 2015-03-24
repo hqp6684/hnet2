@@ -8,10 +8,7 @@ from django.contrib.auth import authenticate, get_user_model
 from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField  
 class UserCreationForm(forms.ModelForm):
 
-    error_css_class = 'alert-danger'
-    #error_css_class = 'error'
-    #required_css_class = 'required'
-
+    #error_css_class = 'alert-danger'
     """
     A form that creates a user, with no privileges, from the given username and
     password.
@@ -93,20 +90,21 @@ class UserProfileForm(forms.ModelForm):
             'lName' : forms.TextInput(attrs={'class':'form-control'}),
             'mName' : forms.TextInput(attrs={'class':'form-control'}),
             'dOB' : forms.DateInput(attrs={'class':'datepicker form-control'}),
-            #'sSN' : USSocialSecurityNumberField(attrs={'class':'form-control'}),
-            #'phoneNumber' : forms.TextInput(attrs={'class':'form-control'}),
             'streetAddress' : forms.TextInput(attrs={'class':'form-control'}),
             'city' : forms.TextInput(attrs={'class':'form-control'}),
             'state' : forms.Select(attrs={'class': 'form-control'}),
             'zipcode' : forms.TextInput(attrs={'class':'form-control'}),
             'email' : forms.EmailInput(attrs={'class':'form-control'}),
         }
+
+
+
 #create a new patient
 class NewPatientForm(forms.ModelForm):
     class Meta:
         model = Patient
 
-#login form
+#login form from Django auth forms
 class AuthenticationForm(forms.Form):
     """
     Base class for authenticating users. Extend this to get a form that accepts

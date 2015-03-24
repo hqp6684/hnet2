@@ -2,11 +2,19 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from users.models import UserProfile
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
-
+from django.contrib.auth import (
+    login as auth_login,
+    logout as auth_logout,
+)
 import datetime
 
-from .forms import UserCreationForm, UserProfileForm, NewPatientForm, AuthenticationForm
+from .forms import (UserCreationForm, UserProfileForm, 
+	NewPatientForm, AuthenticationForm, UserProfileUpdateForm,
+
+)
+
+from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 def index(request):
     now = datetime.datetime.now()
@@ -24,7 +32,7 @@ def get_ref_id():
 	except:
 		return ref_id
 
-def account_message(request, template_name='accounts/account-message.html'):
+def account_message(request, template_name='accounts/account_message.html'):
 	context = {}
 	return render(request, template_name, context)
 
@@ -58,7 +66,9 @@ def patient_register(request):
 	context = {'form1': form1, 'form2':form2}
 	return render(request, template_name, context)
 
-def account_login(request, template_name='accounts/account_login_form.html'):
+def account_login(request, 
+	template_name='accounts/account_login_form.html'):
+
     context = {}
     if request.user.is_authenticated():
     	messages.info(request, 'You have already logged in')
@@ -67,12 +77,67 @@ def account_login(request, template_name='accounts/account_login_form.html'):
     if request.method =='POST':
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
-            login(request,form.get_user())
-            messages.success(request, 'You have successfuly logged in')
+            auth_login(request,form.get_user())
+            messages.success(request, 'You have successfully logged in')
             return redirect('/account/message')
     else:
         form = AuthenticationForm()
     context['form'] = form
     return render(request, template_name,context)
+
+
+def account_logout(request,
+           template_name='accounts/account_message.html'):
+
+    auth_logout(request)
+    context ={}
+    messages.success(request, 'You have successfully logged out')
+    return render(request, template_name, context)
+
+def check_user(request_ref_id, ref_id):
+	return request_ref_id == ref_id
+
+@login_required(login_url='/account/login')
+def userprofile_view(request, ref_id):
+	'''check if request user is the same logged in user'''
+	if check_user(request.user.userprofile.ref_id,ref_id):
+		template_name = 'accounts/account_profile_view_form.html'
+		context = {}
+		profile = UserProfile.objects.get(ref_id=ref_id)
+		context['profile'] = profile
+		return render(request, template_name, context)
+	else:
+		template_name= 'accounts/account_message.html'
+		context = {}
+		messages.warning(request, "Opps, are you in the right place?")
+		return render(request, template_name, context)
+
+
+@login_required(login_url='/account/login')
+def userprofile_update(request, ref_id):
+	'''check if request user is the same logged in user'''
+	if check_user(request.user.userprofile.ref_id,ref_id):
+		template_name = 'accounts/account_profile_udpate_form.html'
+		
+
+		context = {}
+		profile = UserProfile.objects.get(ref_id=ref_id)
+		form = UserProfileForm(request.POST or None, instance=profile)
+
+		if request.method == 'POST':
+			if form.is_valid():
+				form.save()
+				messages.success(request, 'You have successfully updated your profile information')
+				return redirect('/account/message')
+
+		context['form'] = form
+
+		return render(request, template_name, context)
+	else:
+		template_name= 'accounts/account_message.html'
+		context = {}
+		messages.warning(request, "Opps, are you in the right place?")
+		return render(request, template_name, context)
+
 
 

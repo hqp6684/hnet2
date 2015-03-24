@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from localflavor.us.models import USStateField, USZipCodeField, USSocialSecurityNumberField, PhoneNumberField
+from django.core.urlresolvers import reverse
 # Create your models here.
 
 #to exclude custom fields when migrate with sould
@@ -31,13 +32,12 @@ class UserProfile(models.Model):
 
 
 	'''return url for an object'''
-	'''def get_absolute_url(self):
-		from django.core.urlresolvers import reverse
+	def get_absolute_url(self):
 		#return "/users/%i/" % self.user.id
-		return reverse('userprofile-detail', kwargs={'pk':self.user.id})
-	'''
-	def get_field_values(self):
-		return [field.value_to_string(self) for field in UserProfile._meta.fields]
+		return reverse('userprofile-detail', kwargs={'ref_id':self.ref_id})
+	def get_absolute_url_update(self):
+		return reverse('userprofile-update', kwargs={'ref_id':self.ref_id})
+
 
 
 

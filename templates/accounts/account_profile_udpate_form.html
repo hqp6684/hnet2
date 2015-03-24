@@ -8,51 +8,7 @@
 <div class="row">
 <div class="col-sm-offset-3">
 	<form action="" method="POST" class="form-horizontal">{%csrf_token%}
-		<h1> Account Registration</h1>
-
-		{%for field in form1 %}
-			<div class="form-group">
-			{% if field.errors %}
-			{%for error in field.errors%}
-			<!-- display error -->
-			<div class="col-sm-offset-2">
-				<font color="#a94442">
-					<ul>
-						<li>{{error}}</li>
-					</ul>
-				</font>
-			</div>
-
-			<!--div class="alert alert-danger" role="alert">
-			  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-			  <span class="sr-only">Error:</span>
-			  Enter a valid email address
-			</div-->
-			{%endfor%}
-			<!--field label -->
-			<label for="{{field.label}}" class="col-sm-2 control-label">{{field.label}}</label>
-				<!--to display x icon if field gives error-->
-			<div class="form-group has-error has-feedback col-xs-4">
-				<!--display field-->
-				{{field}}
-				<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
- 				<span id="inputError2Status" class="sr-only">(error)</span>
- 				<span id="helpBlock" class="help-block">{{field.help_text}}</span>
-			</div>
-
-
-			{% else %}
-			<label for="{{field.label}}" class="col-sm-2 control-label">{{field.label}}</label>
-			<div class="form-group col-xs-4">
-			<!--field w/o error-->
-			{{field}}
-			<span id="helpBlock" class="help-block">{{field.help_text}}</span>
-			</div>
-			{%endif%}
-			</div>
-		{%endfor%}
-
-		{%for field in form2 %}
+		{%for field in form %}
 			<div class="form-group">
 			{% if field.errors %}
 			{%for error in field.errors%}
@@ -95,7 +51,7 @@
 		{%endfor%}
 		<div class="form-group">
 			<div class="col-sm-offset-2 col-sm-10">
-				<button type="submit" class="btn btn-primary">Submit</button>
+				<button type="submit" class="btn btn-default">Submit</button>
 				<a class="btn btn-default" href="{% url 'home' %}" role="button">Cancel</a>
 			</div>
 		</div>

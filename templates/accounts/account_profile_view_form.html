@@ -1,0 +1,101 @@
+{%extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+<div class="row">
+<div class="col-sm-offset-3">
+<form class="form-horizontal">
+
+<div class="col-sm-offset-2"><h1>My Profile</h1></div>
+
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">Username:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.user}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">First name:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.fName}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">Last name:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.lName}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">DOB:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.dOB}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">SSN:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.sSN}}</div>
+		</div>
+	</div>
+
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">Phone:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.phoneNumber}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">Address:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.streetAddress}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">City:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.city}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">State:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.state}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">Zipcode:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.zipcode}}</div>
+		</div>
+	</div>
+
+	<div class="form-group" >
+	<label class="col-sm-2 control-label">Email:</label>
+		<div class="form-group col-xs-4">
+			<div class="form-control">{{profile.email}}</div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<div class="col-sm-offset-2 col-sm-10">
+			<a class="btn btn-default" href="{{user.userprofile.get_absolute_url_update}}" role="button">Edit</a>
+		</div>
+	</div>
+
+</form>
+
+</div>
+</div>
+</div>
+{% endblock %}
