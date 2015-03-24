@@ -36,6 +36,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #for databse migration
+    'south',
+    #for shell_plus (automatically import all models)
+    'django_extensions',
+
+    'users',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -67,7 +74,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -75,8 +82,40 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+##==============
+#to load template folder in project
+TEMPLATE_DIRS = (
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(BASE_DIR ,'templates').replace('\\','/'),
+)
+#print TEMPLATE_DIRS
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Absolute path to the directory static files should be collected to.
+# Don't put anything in this directory yourself; store your static files
+# in apps' "static/" subdirectories and in STATICFILES_DIRS.
+# Example: "/var/www/example.com/static/"
+STATIC_ROOT = os.path.join(BASE_DIR ,'static', 'static_root').replace('\\','/')
+#print STATIC_ROOT
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.6/howto/static-files/
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR ,'static', 'static_dirs').replace('\\','/'),
+)
+
+#print STATICFILES_DIRS
+MEDIA_ROOT = os.path.join(BASE_DIR ,'static', 'media').replace('\\','/')
+
+MEDIA_URL = '/media/'
+
+
+
+
+

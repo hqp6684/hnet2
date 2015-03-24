@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{%block content%}
+	<form action="" method="POST" class="container" style="background-color: #FFFFFF; max-width: 450px; border-radius: 8px;">{%csrf_token%}
+	<h1> register for an account</h1>
+
+		{%for field in form %}
+	<div>
+		{% if field.errors %}
+		{%for error in field.errors%}
+		<div class="alert-danger" role="alert">
+			<ul>
+				<li>{{error}}
+			</li>
+		</div>
+		{%endfor%}
+
+		{{field.label_tag}}
+		<div class="form-group has-error has-feedback">
+		{{field}}
+		<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+ 		<span id="inputError2Status" class="sr-only">(error)</span>
+
+		</div>
+		{{field.help_text}}
+
+		{% else %}
+		{{field.label_tag}}{{field}}
+		{{field.help_text}}
+
+		{%endif%}
+	</div>
+	<br>
+
+	{%endfor%}
+	<button type="submit" class="btn btn-default">Submit</button>
+
+
+	</form>
+{%endblock%}
