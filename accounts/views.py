@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from users.models import UserProfile, Employee, Doctor
+from users.models import UserProfile, Employee, Doctor, Nurse
 from django.contrib import messages
 from django.contrib.auth import (
     login as auth_login,
@@ -82,27 +82,44 @@ def employee_register(request):
 
 		if form1.is_valid() and form2.is_valid() and form3.is_valid():
 			#user instance
-			user = form1.save()
+			user = form1.save(commit=False)
 			#create user profile
 			profile = form2.save(commit=False)
 			profile.user = user
 			#generate a new reference id for this user
 			profile.ref_id = get_ref_id()
 			#save user profile to database
-			profile.save()
+			#profile.save()
 			#create new employee instance
 			new_employee = form3.save(commit=False)
 			#set related user
 			new_employee.employee = user
-			new_employee.save()
-			if new_employee.employee_type == 'D':
-				new_doc = Doctor.create(new_employee)
-				new_doc.save()
-				messages.success(request, 'A doctor has been registered')
-				#return to home 
-				return redirect('/account/message')
-			else:
-				messages.error(request, 'something wrong')
+			#new_employee.save(commit=False)
+			#get the type
+			employee_type = new_employee.employee_type
+			if employee_type:
+				#create new doctor
+				if employee_type == 'D':
+					new_doc = Doctor.create(new_employee)
+					user.save()
+					profile.save()
+					new_employee.save()
+					new_doc.save()
+					messages.success(request, 'A doctor has been registered')
+					#return to home 
+					return redirect('/account/message')
+				elif employee_type == 'N':
+					new_nurse = Nurse.create(new_employee)
+					user.save()
+					profile.save()
+					new_employee.save()
+					new_nurse.save()
+					messages.success(request, 'A nurse has been registered')
+					#return to home 
+					return redirect('/account/message')
+
+				else:
+					messages.error(request, 'something wrong')
 		else:
 			messages.error(request, 'Please correct all the fields with error')
 

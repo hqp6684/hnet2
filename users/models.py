@@ -88,6 +88,11 @@ class Doctor(models.Model):
 class Nurse(models.Model):
 	nurse = models.OneToOneField(Employee, primary_key=True)
 
+	@classmethod
+	def create(nur, employee):
+		nurse = nur(nurse=employee)
+		return nurse
+		
 	def __str__(self):
 		return self.nurse._employee_info()
 
