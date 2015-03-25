@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from users.models import UserProfile
+from users.models import UserProfile, Employee, Doctor
 from django.contrib import messages
 from django.contrib.auth import (
     login as auth_login,
@@ -9,7 +9,7 @@ from django.contrib.auth import (
 import datetime
 
 from .forms import (UserCreationForm, UserProfileForm, 
-	NewPatientForm, AuthenticationForm, UserProfileUpdateForm,
+	NewPatientForm, AuthenticationForm, EmployeeCreationForm
 
 )
 
@@ -60,10 +60,55 @@ def patient_register(request):
 			messages.success(request, 'Thank you for joining us')
 			#return to home 
 			return redirect('/account/message')
+		else:
+			messages.error(request, 'Please correct all the fields with error')
 
 
 	template_name = 'accounts/account_patient_form.html'
 	context = {'form1': form1, 'form2':form2}
+	return render(request, template_name, context)
+
+def employee_register(request):
+	form1 = UserCreationForm(prefix="u")
+	form2 = UserProfileForm(prefix="p")
+	form3 = EmployeeCreationForm(prefix="e")
+
+	if request.POST:
+		#print request.POST
+		form1 = UserCreationForm(request.POST, prefix="u")
+		form2 = UserProfileForm(request.POST, prefix="p")
+		form3 = EmployeeCreationForm(request.POST, prefix="e")
+
+
+		if form1.is_valid() and form2.is_valid() and form3.is_valid():
+			#user instance
+			user = form1.save()
+			#create user profile
+			profile = form2.save(commit=False)
+			profile.user = user
+			#generate a new reference id for this user
+			profile.ref_id = get_ref_id()
+			#save user profile to database
+			profile.save()
+			#create new employee instance
+			new_employee = form3.save(commit=False)
+			#set related user
+			new_employee.employee = user
+			new_employee.save()
+			if new_employee.employee_type == 'D':
+				new_doc = Doctor.create(new_employee)
+				new_doc.save()
+				messages.success(request, 'A doctor has been registered')
+				#return to home 
+				return redirect('/account/message')
+			else:
+				messages.error(request, 'something wrong')
+		else:
+			messages.error(request, 'Please correct all the fields with error')
+
+
+	template_name = 'accounts/account_employee_register_form.html'
+	context = {'form1': form1, 'form2':form2, 'form3':form3}
 	return render(request, template_name, context)
 
 def account_login(request, 
@@ -80,6 +125,8 @@ def account_login(request,
             auth_login(request,form.get_user())
             messages.success(request, 'You have successfully logged in')
             return redirect('/account/message')
+        else:
+        	messages.error(request, 'Please enter a correct username and password. Note that both fields may be case-sensitive.')
     else:
         form = AuthenticationForm()
     context['form'] = form

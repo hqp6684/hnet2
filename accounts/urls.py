@@ -4,6 +4,8 @@ from accounts import views
 urlpatterns = patterns('',
 	#url(r'^$', views.index),
 	url(r'^register/$', views.patient_register, name='patient-register'),
+	url(r'^employee-register/$', views.employee_register, name='employee-register'),
+
 	url(r'^message/$', views.account_message, name='account-message'),
 	url(r'^login/$', views.account_login, name='account-login'),
 	url(r'^logout/$', views.account_logout, name='account-logout'),

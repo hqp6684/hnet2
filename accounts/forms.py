@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from users.models import UserProfile, Patient
+from users.models import UserProfile, Patient, Employee
 from django.forms.models import model_to_dict, fields_for_model
 from django.utils.translation import ugettext, ugettext_lazy as _
 
@@ -104,14 +104,28 @@ class NewPatientForm(forms.ModelForm):
     class Meta:
         model = Patient
 
+
+
+class EmployeeCreationForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        exclude = ['employee']
+        fields= ['employee_type']
+
+
+
 #login form from Django auth forms
 class AuthenticationForm(forms.Form):
     """
     Base class for authenticating users. Extend this to get a form that accepts
     username/password logins.
     """
-    username = forms.CharField(label=_("Username"),max_length=254,widget=forms.TextInput(attrs={'class':'form-control'}))
-    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput(attrs={'class':'form-control'}))
+
+    username = forms.CharField(label=_("Username"),
+        max_length=254,
+        widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Username', 'required': True, 'autofocus':True}))
+    password = forms.CharField(label=_("Password"), 
+        widget=forms.PasswordInput(attrs={'class':'form-control', 'placeholder':'Password','required': True}))
 
     error_messages = {
         'invalid_login': _("Please enter a correct username and password. "

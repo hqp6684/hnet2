@@ -80,6 +80,10 @@ class Doctor(models.Model):
 
 	def __str__(self):
 		return self.doctor._employee_info()
+	@classmethod
+	def create(doc, employee):
+		doctor = doc(doctor=employee)
+		return doctor
 
 class Nurse(models.Model):
 	nurse = models.OneToOneField(Employee, primary_key=True)
