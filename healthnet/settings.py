@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'users',
     'accounts',
     'medicalinfo',
+    'postman',
 
 )
 
@@ -116,6 +117,10 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(BASE_DIR ,'static', 'media').replace('\\','/')
 
 MEDIA_URL = '/media/'
+
+
+#skip pending state
+POSTMAN_AUTO_MODERATE_AS = True  # default is None
 
 
 

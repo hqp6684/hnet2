@@ -5,7 +5,9 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    
+    #message system
+    url(r'^messages/', include('postman.urls')),
+
     # url(r'^blog/', include('blog.urls')),
     url(r'^index', 'healthnet.views.index', name='index'),
     
@@ -14,6 +16,10 @@ urlpatterns = patterns('',
     url(r'^users/', include('users.urls')),
     #
     url(r'^account/', include('accounts.urls')),
+    url(r'^medicalinfomation/', include('medicalinfo.urls'), name='med-info'),
+
 
 	url(r'^$', 'healthnet.views.home', name='home'),
+
 )
+
