@@ -42,6 +42,8 @@ INSTALLED_APPS = (
     'django_extensions',
 
     'users',
+    'accounts',
+    'medicalinfo',
 
 )
 

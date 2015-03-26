@@ -92,7 +92,7 @@ class Nurse(models.Model):
 	def create(nur, employee):
 		nurse = nur(nurse=employee)
 		return nurse
-		
+
 	def __str__(self):
 		return self.nurse._employee_info()
 
