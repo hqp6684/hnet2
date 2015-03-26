@@ -44,7 +44,7 @@ class UserProfile(models.Model):
 class Patient(models.Model):
 
 	patient = models.OneToOneField(User,primary_key=True)
-	active = models.BooleanField(default=False)
+	is_active = models.BooleanField(default=False)
 
 	'''
 	doctor = models.ManyToManyField(Doctor)

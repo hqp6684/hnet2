@@ -13,27 +13,12 @@ from accounts.forms import (UserCreationForm, UserProfileForm,
 from django.contrib.auth.decorators import login_required
 
 
-'''#====
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
-
-content_type = ContentType.objects.get_for_model(MedicalInformation)
-permission = Permission.objects.create(codename='can_view',
-                                       name='can view med-info',
-                                       content_type=content_type)
-'''#===
-
 # Create your views here.
 def index(request):
     now = datetime.datetime.now()
     html = "<html><body>It is now %s.</body></html>" % now
     return HttpResponse(html)
 
-''' create a random reference id for user'''
-
-def account_message(request, template_name='accounts/account_message.html'):
-	context = {}
-	return render(request, template_name, context)
 
 
 def check_user(request_ref_id, ref_id):

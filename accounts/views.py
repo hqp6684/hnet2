@@ -19,12 +19,22 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
 
-
+#method to give med-info permissions to user
 def gain_medinfo_perms(user):
+	#get permission instances
+	read_medinfo = Permission.objects.get(codename='read_medinfo')
+	init_medinfo = Permission.objects.get(codename='init_medinfo')
+	edit_medinfo = Permission.objects.get(codename='change_medicalinformation')
 
-    permission = Permission.objects.get(codename='view_medinfo')
-    user.user_permissions.add(permission)
-
+	try:
+		if user.patient:
+			user.user_permissions.add(read_medinfo)
+			user.user_permissions.add(init_medinfo)
+	except:
+		#if user is employee (will need to modify to doctor, nurse)
+		user.user_permissions.add(read_medinfo)
+		user.user_permissions.add(init_medinfo)
+		user.user_permissions.add(edit_medinfo)
 
 # Create your views here.
 def index(request):
@@ -70,6 +80,8 @@ def patient_register(request):
 			new_patient.save()
 			med_info = MedicalInformation.create(new_patient)
 			med_info.save()
+			#gain medicalinfo permissions
+			gain_medinfo_perms(user)
 			messages.success(request, 'Thank you for joining us')
 			#return to home 
 			return redirect('/account/message')
@@ -95,38 +107,33 @@ def employee_register(request):
 
 		if form1.is_valid() and form2.is_valid() and form3.is_valid():
 			#user instance
-			user = form1.save(commit=False)
+			user = form1.save()
 			#create user profile
 			profile = form2.save(commit=False)
 			profile.user = user
 			#generate a new reference id for this user
 			profile.ref_id = get_ref_id()
-			#save user profile to database
-			#profile.save()
+			#save to database
+			profile.save()
 			#create new employee instance
 			new_employee = form3.save(commit=False)
 			#set related user
 			new_employee.employee = user
-			#new_employee.save(commit=False)
-			#get the type
-			employee_type = new_employee.employee_type
-			if employee_type:
+
+			#employee_type = new_employee.employee_type
+			if new_employee.employee_type:
+				#gain medicalinfo permissions
 				gain_medinfo_perms(user)
 				#create new doctor
-				if employee_type == 'D':
+				if new_employee.employee_type == 'D':
 					new_doc = Doctor.create(new_employee)
-					user.save()
-					profile.save()
 					new_employee.save()
 					new_doc.save()
-					gain_medinfo_perms(user)
 					messages.success(request, 'A doctor has been registered')
 					#return to home 
 					return redirect('/account/message')
-				elif employee_type == 'N':
+				elif new_employee.employee_type == 'N':
 					new_nurse = Nurse.create(new_employee)
-					user.save()
-					profile.save()
 					new_employee.save()
 					new_nurse.save()
 					messages.success(request, 'A nurse has been registered')
@@ -154,9 +161,17 @@ def account_login(request,
     if request.method =='POST':
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
-            auth_login(request,form.get_user())
-            messages.success(request, 'You have successfully logged in')
-            return redirect('/account/message')
+			user = form.get_user()
+			auth_login(request,user)
+			messages.success(request, 'You have successfully logged in')
+            #check if patient is active and notify him/her to enroll
+			try:
+				if user.patient:
+					if not user.patient.is_active:
+						messages.info(request,'You have not enrolled with our medical system. Please contact us ASAP')
+			except:
+				pass
+			return redirect('/account/message')
         else:
         	messages.error(request, 'Please enter a correct username and password. Note that both fields may be case-sensitive.')
     else:

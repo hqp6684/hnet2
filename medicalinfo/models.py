@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import Patient, Doctor, Nurse, UserProfile
 
+
 # Create your models here.
 class MedicalInformation(models.Model):
 	patient = models.OneToOneField(Patient, primary_key=True)
@@ -10,9 +11,8 @@ class MedicalInformation(models.Model):
 
 	class Meta:
 		permissions = (
-			("view_medinfo", "Can see med-info"),
-			("change_medinfo", "can change med-info"),
 			("init_medinfo", "can initialize med-info"),
+			("read_medinfo", "can view med-info"),
 		)
 
 	@classmethod
