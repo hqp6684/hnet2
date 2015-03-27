@@ -1,1 +1,17 @@
-hello there
+{%extends 'base.html' %}
+
+{% block content %}
+        <div class="container">
+
+      <form class="form-signin" action="" method="POST">
+      
+        <h2 class="form-signin-heading">My Med</h2>
+        {{medinfo.problem}}
+        <a class="btn btn-lg btn-primary" href="#">Edit</a>
+      </form>
+
+    </div> <!-- /container -->
+
+
+{% endblock %}
+

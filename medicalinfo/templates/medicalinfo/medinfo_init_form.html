@@ -1,0 +1,17 @@
+{%extends 'base.html' %}
+
+{% block content %}
+        <div class="container">
+
+      <form class="form-signin" action="" method="POST">{%csrf_token%}
+      
+        <h2 class="form-signin-heading">Init Form</h2>
+        {{form.as_p}}
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+
+    </div> <!-- /container -->
+
+
+{% endblock %}
+
