@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from users.models import UserProfile, Employee, Doctor, Nurse
+from users.models import UserProfile, Employee, Doctor, Nurse, Receptionist, Patient
 from medicalinfo.models import MedicalInformation
 from django.contrib import messages
 from django.contrib.auth import (
@@ -10,31 +10,49 @@ from django.contrib.auth import (
 import datetime
 
 from .forms import (UserCreationForm, UserProfileForm, 
-	NewPatientForm, AuthenticationForm, EmployeeCreationForm
+	NewPatientForm, AuthenticationForm, EmployeeCreationForm,
+	PatientActivateForm,
 
 )
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
 
-#method to give med-info permissions to user
-def gain_medinfo_perms(user):
+
+#method to give permissions to user
+def gain_perms(user):
 	#get permission instances
 	read_medinfo = Permission.objects.get(codename='read_medinfo')
 	init_medinfo = Permission.objects.get(codename='init_medinfo')
 	edit_medinfo = Permission.objects.get(codename='change_medicalinformation')
+	read_patient = Permission.objects.get(codename='read_patient')
+	edit_patient = Permission.objects.get(codename='change_patient')
 
 	try:
 		if user.patient:
 			user.user_permissions.add(read_medinfo)
 			user.user_permissions.add(init_medinfo)
 	except:
-		#if user is employee (will need to modify to doctor, nurse)
-		user.user_permissions.add(read_medinfo)
-		user.user_permissions.add(init_medinfo)
-		user.user_permissions.add(edit_medinfo)
+		if user.employee.employee_type == 'D':
+			user.user_permissions.add(read_medinfo)
+			user.user_permissions.add(init_medinfo)
+			user.user_permissions.add(edit_medinfo)
+			user.user_permissions.add(read_patient)
+			user.user_permissions.add(edit_patient)
+		elif user.employee.employee_type == 'N':
+			user.user_permissions.add(read_medinfo)
+			user.user_permissions.add(init_medinfo)
+			user.user_permissions.add(edit_medinfo)
+			user.user_permissions.add(read_patient)
+			user.user_permissions.add(edit_patient)			
+		elif user.employee.employee_type == 'R':
+			user.user_permissions.add(read_patient)
+			user.user_permissions.add(edit_patient)
+
+
+
 
 # Create your views here.
 def index(request):
@@ -81,7 +99,7 @@ def patient_register(request):
 			med_info = MedicalInformation.create(new_patient)
 			med_info.save()
 			#gain medicalinfo permissions
-			gain_medinfo_perms(user)
+			#gain_medinfo_perms(user)
 			messages.success(request, 'Thank you for joining us')
 			#return to home 
 			return redirect('/account/message')
@@ -123,7 +141,7 @@ def employee_register(request):
 			#employee_type = new_employee.employee_type
 			if new_employee.employee_type:
 				#gain medicalinfo permissions
-				gain_medinfo_perms(user)
+				gain_perms(user)
 				#create new doctor
 				if new_employee.employee_type == 'D':
 					new_doc = Doctor.create(new_employee)
@@ -140,6 +158,13 @@ def employee_register(request):
 					#return to home 
 					return redirect('/account/message')
 
+				elif new_employee.employee_type == 'R':
+					new_rep = Receptionist.create(new_employee)
+					new_employee.save()
+					new_rep.save()
+					messages.success(request, 'A Receptionist has been registered')
+					#return to home 
+					return redirect('/account/message')
 				else:
 					messages.error(request, 'something wrong')
 		else:
@@ -168,7 +193,7 @@ def account_login(request,
 			try:
 				if user.patient:
 					if not user.patient.is_active:
-						messages.info(request,'You have not enrolled with our medical system. Please contact us ASAP')
+						messages.info(request,'You are not registered as our patient yet. Please contact us for more information')
 			except:
 				pass
 			return redirect('/account/message')
@@ -209,7 +234,7 @@ def userprofile_view(request, ref_id):
 		return render(request, template_name, context)
 '''
 
-@login_required(login_url='/account/login')
+@login_required
 def userprofile_update(request, ref_id):
 		template_name = 'accounts/account_profile_udpate_form.html'
 		context = {}
@@ -229,4 +254,33 @@ def userprofile_update(request, ref_id):
 		context['form'] = form
 
 		return render(request, template_name, context)
+
+@permission_required('users.read_patient', raise_exception=True)
+def patient_list_view(request):
+	template_name = 'accounts/account_patient_list.html'
+	patients = Patient.objects.all()
+	context = {'patients':patients}
+
+	return render(request, template_name, context)
+
+#custom method to trace user_id by ref_id
+def trace_user(ref_id):
+	user = UserProfile.objects.get(ref_id=ref_id)
+	return user.user
+
+@permission_required('users.change_patient', raise_exception=True)
+def patient_activate(request, ref_id):
+	template_name = 'accounts/account_patient_activate_form.html'
+	user = trace_user(ref_id)
+	#get patient instance
+	patient = user.patient
+	#init the form with instance
+	form = PatientActivateForm(request.POST or None, instance=patient)
+	if form.is_valid():
+		form.save()
+		messages.success(request,"You have activated patient %s" %user.username)
+		return redirect('/account/message')
+
+	context = {'form':form}
+	return render(request, template_name, context)
 

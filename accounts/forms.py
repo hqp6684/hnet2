@@ -105,6 +105,14 @@ class NewPatientForm(forms.ModelForm):
         model = Patient
 
 
+#activate new patient
+class PatientActivateForm(forms.ModelForm):
+    is_active = forms.BooleanField(label=_("Check this box to activate"),)
+    class Meta:
+        model = Patient
+        exclude = ['patient']
+
+
 
 class EmployeeCreationForm(forms.ModelForm):
     class Meta:

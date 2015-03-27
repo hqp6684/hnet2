@@ -124,5 +124,5 @@ POSTMAN_AUTO_MODERATE_AS = True  # default is None
 
 
 
-
+LOGIN_URL = '/account/login'
 

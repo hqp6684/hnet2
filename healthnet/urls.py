@@ -23,3 +23,5 @@ urlpatterns = patterns('',
 
 )
 
+handler403 = 'healthnet.views.http403'
+handler404 = 'healthnet.views.http404'

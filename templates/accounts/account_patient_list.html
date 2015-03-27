@@ -1,0 +1,25 @@
+{%extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+<div class="row">
+<div class="col-sm-offset-3">
+
+<form class="form-inline">
+<div><h1>Patient List</h1></div>
+
+{%for patient in patients%}
+
+  <div class="form-group">
+    <label for="exampleInputName2">{{patient}}</label>
+    <div class="form-control"> {{patient.is_active}}
+  </div>
+  <a class="btn btn-default" href="{{patient.patient.userprofile.get_activate_url}}" role="button">Edit</a>
+{%endfor%}
+
+</form>
+
+</div>
+</div>
+</div>
+{% endblock %}

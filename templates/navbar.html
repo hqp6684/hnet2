@@ -1,6 +1,6 @@
 
 {% if not user.is_authenticated %}
-
+<!--NAVBAR for ANONYMOUS USER -->
 <header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 
 <nav class="collapse navbar-collapse bs-navbar-collapse">
@@ -20,19 +20,7 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="active"><a href="{% url 'home' %}">About Us<span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Link</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-            <li class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
-          </ul>
-        </li>
+        <li><a href="#">Contact Us</a></li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -124,9 +112,9 @@
         <li class="active"><a href="{% url 'home' %}">About Us<span class="sr-only">(current)</span></a></li>
         <li><a href="#">Link</a></li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">More <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Action</a></li>
+            <li><a href="{%url 'patient-list' %}">Patient List</a></li>
             <li><a href="#">Another action</a></li>
             <li><a href="#">Something else here</a></li>
             <li class="divider"></li>
@@ -143,7 +131,7 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             <li><a href="{{ user.userprofile.get_absolute_url }}">My Profile</a></li>
-            <li><a href="#">Another action</a></li>
+            <li><a href="/messages">My Messages</a></li>
             <li><a href="#">Something else here</a></li>
             <li class="divider"></li>
             <li><a href="{% url 'account-logout' %}">Sign out</a></li>
@@ -157,7 +145,7 @@
 </header>
 
     {%else%}
-<!-- Navbar for Patient -->
+<!-- NAVBAR FOR PATIENT -->
 <header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 
 <nav class="collapse navbar-collapse bs-navbar-collapse">
@@ -193,12 +181,13 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/messages">Message</a></li>
+        <li><a href="{{user.userprofile.get_medinfo_url}}">My Medical View</a></li>
+        <li><a href="#">My Appointment</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             <li><a href="{{ user.userprofile.get_absolute_url }}">My Profile</a></li>
-            <li><a href="#">Another action</a></li>
+            <li><a href="/messages">My Messages</a></li>
             <li><a href="#">Something else here</a></li>
             <li class="divider"></li>
             <li><a href="{% url 'account-logout' %}">Sign out</a></li>

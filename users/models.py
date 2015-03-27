@@ -37,6 +37,11 @@ class UserProfile(models.Model):
 		return reverse('userprofile-detail', kwargs={'ref_id':self.ref_id})
 	def get_absolute_url_update(self):
 		return reverse('userprofile-update', kwargs={'ref_id':self.ref_id})
+	def get_medinfo_url(self):
+		return reverse('med-info-detail', kwargs={'ref_id': self.ref_id})
+	def get_activate_url(self):
+		return reverse('patient-activate', kwargs={'ref_id': self.ref_id})
+
 
 
 
@@ -45,6 +50,10 @@ class Patient(models.Model):
 
 	patient = models.OneToOneField(User,primary_key=True)
 	is_active = models.BooleanField(default=False)
+	class Meta:
+		permissions = (
+			("read_patient", "can view patient"),
+		)
 
 	'''
 	doctor = models.ManyToManyField(Doctor)
@@ -77,6 +86,7 @@ class Employee(models.Model):
 
 class Doctor(models.Model):
 	doctor = models.OneToOneField(Employee, primary_key=True)
+	available = models.BooleanField(default=True)
 
 	def __str__(self):
 		return self.doctor._employee_info()
@@ -97,7 +107,13 @@ class Nurse(models.Model):
 		return self.nurse._employee_info()
 
 
+class Receptionist(models.Model):
+	receptionist = models.OneToOneField(Employee, primary_key=True)
 
+	@classmethod
+	def create(rep, employee):
+		receptionist = rep(receptionist=employee)
+		return receptionist
 
 
 

@@ -20,3 +20,4 @@ class MedicalInformation(models.Model):
 		new_info = info(patient=patient)
 		return new_info
 
+
