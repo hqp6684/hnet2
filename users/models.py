@@ -5,8 +5,8 @@ from django.core.urlresolvers import reverse
 # Create your models here.
 
 #to exclude custom fields when migrate with sould
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^localflavor\.us\.models"])
+#from south.modelsinspector import add_introspection_rules
+#add_introspection_rules([], ["^localflavor\.us\.models"])
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, primary_key=True)
