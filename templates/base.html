@@ -27,8 +27,9 @@
   <body>
 
     {% include 'navbar.html' %}
+    {% block postman_menu %} {%endblock%}
+
     {% include 'message.html' %}
-    
     {% block home %}
     {%endblock%}
 

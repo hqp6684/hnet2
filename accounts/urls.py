@@ -13,7 +13,8 @@ urlpatterns = patterns('',
 	url(r'^(?P<ref_id>[\w]+)/$', views.userprofile_view,name='userprofile-detail'),
 	url(r'^(?P<ref_id>[\w]+)/update/$', views.userprofile_update, name='userprofile-update'),
 
-	url(r'^patient-list/$', views.patient_list_view, name='patient-list'),
+	url(r'^patient-inactive-list/$', views.patient_inactive_list_view, name='patient-inactive-list'),
+	url(r'^my-patients/$', views.my_patient_list_view, name='my-patient-list'),
 
 	url(r'^patient-list/(?P<ref_id>[\w]+)/$', views.patient_activate, name='patient-activate'),
 

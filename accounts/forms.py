@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from users.models import UserProfile, Patient, Employee
+from users.models import UserProfile, Patient, Employee, Doctor
 from django.forms.models import model_to_dict, fields_for_model
 from django.utils.translation import ugettext, ugettext_lazy as _
 
@@ -107,12 +107,24 @@ class NewPatientForm(forms.ModelForm):
 
 #activate new patient
 class PatientActivateForm(forms.ModelForm):
+
     is_active = forms.BooleanField(label=_("Check this box to activate"),)
+    primary_doctor = forms.ModelChoiceField(queryset=Doctor.objects.filter(available=True),
+        label=_("Available Doctors"),
+        widget= forms.Select(attrs={'class':'form-control'})
+        )
+
     class Meta:
         model = Patient
+    #DEBUG, need to add patient
         exclude = ['patient']
-
-
+    #to show only available doctors
+    '''
+    def __init__(self, *args, **kwargs):
+        #available_docs = kwargs.pop('available_docs')
+        super(PatientActivateForm, self).__init__(*args,**kwargs)
+        self.fields['doctors'].queryset = Doctor.objects.filter(available=True)
+        '''
 
 class EmployeeCreationForm(forms.ModelForm):
     class Meta:

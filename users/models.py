@@ -2,11 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from localflavor.us.models import USStateField, USZipCodeField, USSocialSecurityNumberField, PhoneNumberField
 from django.core.urlresolvers import reverse
+
 # Create your models here.
 
 #to exclude custom fields when migrate with sould
-#from south.modelsinspector import add_introspection_rules
-#add_introspection_rules([], ["^localflavor\.us\.models"])
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^localflavor\.us\.models"])
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, primary_key=True)
@@ -14,7 +15,7 @@ class UserProfile(models.Model):
     ref_id = models.CharField(max_length=120, default='abc', unique=True)
     fName = models.CharField(max_length=40, verbose_name ="First Name")
     lName = models.CharField(max_length=40, verbose_name ="Last Name", )
-    mName = models.CharField(max_length=40, verbose_name ="Middle Name", )
+    mName = models.CharField(max_length=40, verbose_name ="Middle Name", blank=True )
     dOB = models.DateField()
     sSN = USSocialSecurityNumberField(verbose_name ="SSN", unique=True, )
     phoneNumber = PhoneNumberField(null=True, verbose_name ="Phone")
@@ -51,25 +52,6 @@ class UserProfile(models.Model):
 
 
 
-class Patient(models.Model):
-
-    patient = models.OneToOneField(User,primary_key=True)
-    is_active = models.BooleanField(default=False)
-    class Meta:
-        permissions = (
-            ("read_patient", "can view patient"),
-        )
-
-    '''
-    doctor = models.ManyToManyField(Doctor)
-    @classmethod
-    def create(p, username):
-        patient = p(user=usearname)
-        return patient
-'''
-    def __str__(self):
-        return self.patient.username
-
 
 class Employee(models.Model):
     employee = models.OneToOneField(User, primary_key=True, verbose_name="Employee username")
@@ -92,6 +74,7 @@ class Employee(models.Model):
 class Doctor(models.Model):
     doctor = models.OneToOneField(Employee, primary_key=True)
     available = models.BooleanField(default=True)
+    max_patients = models.PositiveIntegerField(default=10)
 
     def __str__(self):
         return self.doctor._employee_info()
@@ -124,6 +107,21 @@ class Receptionist(models.Model):
 
 
 
+
+
+class Patient(models.Model):
+
+    patient = models.OneToOneField(User,primary_key=True)
+    is_active = models.BooleanField(default=False)
+    primary_doctor = models.ForeignKey(Doctor, verbose_name="Primary Doctor", null=True)
+    
+    class Meta:
+        permissions = (
+            ("read_patient", "can view patient"),
+        )
+        
+    def __str__(self):
+        return self.patient.username
 
 
 

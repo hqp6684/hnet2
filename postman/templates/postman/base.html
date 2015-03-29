@@ -9,7 +9,7 @@
 {# dj v1.2 #}{# {{ MEDIA_URL }}postman/css/postman.css #}
 " />{% endblock %}
 {% block postman_menu %}
-<ul id="postman_menu">{% postman_unread as unread_count %}
+<ul id="postman_menu" class="nav nav-pills">{% postman_unread as unread_count %}
  <li><a href="{% url 'postman_inbox' %}">&raquo;&nbsp;{% trans "Inbox" %}{% if unread_count %} <strong>({{ unread_count }})</strong>{% endif %}</a></li>
  <li><a href="{% url 'postman_sent' %}">&raquo;&nbsp;{% trans "Sent Messages" %}</a></li>
  <li><a href="{% url 'postman_write' %}">&raquo;&nbsp;{% trans "Write" %}</a></li>

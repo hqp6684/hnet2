@@ -11,12 +11,12 @@ class Migration(SchemaMigration):
         # Adding model 'UserProfile'
         db.create_table(u'users_userprofile', (
             ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
-            ('ref_if', self.gf('django.db.models.fields.CharField')(default='abc', max_length=120)),
+            ('ref_id', self.gf('django.db.models.fields.CharField')(default='abc', unique=True, max_length=120)),
             ('fName', self.gf('django.db.models.fields.CharField')(max_length=40)),
             ('lName', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('mName', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('dOB', self.gf('django.db.models.fields.DateField')()),
-            ('sSN', self.gf('localflavor.us.models.USSocialSecurityNumberField')(unique=True, max_length=11)),
+            ('mName', self.gf('django.db.models.fields.CharField')(max_length=40, blank=True)),
+            ('dOB', self.gf('django.db.models.fields.DateField')(blank=True)),
+            ('sSN', self.gf('localflavor.us.models.USSocialSecurityNumberField')(unique=True, max_length=11, blank=True)),
             ('phoneNumber', self.gf('localflavor.us.models.PhoneNumberField')(max_length=20, null=True)),
             ('streetAddress', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('city', self.gf('django.db.models.fields.CharField')(max_length=30)),
@@ -28,13 +28,6 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'users', ['UserProfile'])
 
-        # Adding model 'Patient'
-        db.create_table(u'users_patient', (
-            ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
-            ('active', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal(u'users', ['Patient'])
-
         # Adding model 'Employee'
         db.create_table(u'users_employee', (
             ('employee', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
@@ -45,6 +38,8 @@ class Migration(SchemaMigration):
         # Adding model 'Doctor'
         db.create_table(u'users_doctor', (
             ('doctor', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Employee'], unique=True, primary_key=True)),
+            ('available', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('max_patients', self.gf('django.db.models.fields.PositiveIntegerField')(default=10)),
         ))
         db.send_create_signal(u'users', ['Doctor'])
 
@@ -54,13 +49,24 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'users', ['Nurse'])
 
+        # Adding model 'Receptionist'
+        db.create_table(u'users_receptionist', (
+            ('receptionist', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Employee'], unique=True, primary_key=True)),
+        ))
+        db.send_create_signal(u'users', ['Receptionist'])
+
+        # Adding model 'Patient'
+        db.create_table(u'users_patient', (
+            ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
+            ('is_active', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('primary_doctor', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.Doctor'], null=True)),
+        ))
+        db.send_create_signal(u'users', ['Patient'])
+
 
     def backwards(self, orm):
         # Deleting model 'UserProfile'
         db.delete_table(u'users_userprofile')
-
-        # Deleting model 'Patient'
-        db.delete_table(u'users_patient')
 
         # Deleting model 'Employee'
         db.delete_table(u'users_employee')
@@ -70,6 +76,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Nurse'
         db.delete_table(u'users_nurse')
+
+        # Deleting model 'Receptionist'
+        db.delete_table(u'users_receptionist')
+
+        # Deleting model 'Patient'
+        db.delete_table(u'users_patient')
 
 
     models = {
@@ -111,7 +123,9 @@ class Migration(SchemaMigration):
         },
         u'users.doctor': {
             'Meta': {'object_name': 'Doctor'},
-            'doctor': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Employee']", 'unique': 'True', 'primary_key': 'True'})
+            'available': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'doctor': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Employee']", 'unique': 'True', 'primary_key': 'True'}),
+            'max_patients': ('django.db.models.fields.PositiveIntegerField', [], {'default': '10'})
         },
         u'users.employee': {
             'Meta': {'object_name': 'Employee'},
@@ -124,21 +138,26 @@ class Migration(SchemaMigration):
         },
         u'users.patient': {
             'Meta': {'object_name': 'Patient'},
-            'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'})
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'}),
+            'primary_doctor': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.Doctor']", 'null': 'True'})
+        },
+        u'users.receptionist': {
+            'Meta': {'object_name': 'Receptionist'},
+            'receptionist': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Employee']", 'unique': 'True', 'primary_key': 'True'})
         },
         u'users.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             'city': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'dOB': ('django.db.models.fields.DateField', [], {}),
+            'dOB': ('django.db.models.fields.DateField', [], {'blank': 'True'}),
             'dateJoin': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '75'}),
             'fName': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
             'lName': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'mName': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
+            'mName': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
             'phoneNumber': ('localflavor.us.models.PhoneNumberField', [], {'max_length': '20', 'null': 'True'}),
-            'ref_if': ('django.db.models.fields.CharField', [], {'default': "'abc'", 'max_length': '120'}),
-            'sSN': ('localflavor.us.models.USSocialSecurityNumberField', [], {'unique': 'True', 'max_length': '11'}),
+            'ref_id': ('django.db.models.fields.CharField', [], {'default': "'abc'", 'unique': 'True', 'max_length': '120'}),
+            'sSN': ('localflavor.us.models.USSocialSecurityNumberField', [], {'unique': 'True', 'max_length': '11', 'blank': 'True'}),
             'state': ('localflavor.us.models.USStateField', [], {'max_length': '2'}),
             'streetAddress': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),

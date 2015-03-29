@@ -37,14 +37,15 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #for databse migration
-    #'south',
+    'south',
     #for shell_plus (automatically import all models)
-    #'django_extensions',
+    'django_extensions',
 
     'users',
     'accounts',
     'medicalinfo',
     'postman',
+    'simple_history',
 
 )
 
@@ -55,6 +56,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
+
 )
 
 ROOT_URLCONF = 'healthnet.urls'

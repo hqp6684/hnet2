@@ -9,7 +9,8 @@ If the real implementation is to be used, just make sure that 'pagination' is de
 in the INSTALLED_APPS setting.
 {% endcomment %}
 {% block content %}
-<div id="postman">
+
+<div id="postman" class="container">
 <h1>{% block pm_folder_title %}{% endblock %}</h1>
 {% autopaginate pm_messages %}
 {% if invalid_page %}
@@ -26,7 +27,7 @@ in the INSTALLED_APPS setting.
 {% block pm_archive_button %}<button type="submit" onclick="this.form.action='{% url 'postman_archive' %}'">{% trans "Archive" %}</button>{% endblock %}
 {% block pm_undelete_button %}<button type="submit" onclick="this.form.action='{% url 'postman_undelete' %}'">{% trans "Undelete" %}</button>{% endblock %}
 </span>{% endblock %}
-<table id="pm_messages">
+<table id="pm_messages" class="table">
  <thead>
   <tr>
    <th>{% trans "Action" %}</th>

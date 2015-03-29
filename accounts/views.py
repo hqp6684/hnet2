@@ -21,6 +21,15 @@ from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
 
 
+def account_message(request):
+    context = {}
+    template_name = 'accounts/account_message.html'
+    return render(request, template_name, context)
+
+#custom method to trace user_id by ref_id
+def trace_user(ref_id):
+    user = UserProfile.objects.get(ref_id=ref_id)
+    return user.user
 #method to give permissions to user
 def gain_perms(user):
     #get permission instances
@@ -70,10 +79,6 @@ def get_ref_id():
         get_ref_id()
     except:
         return ref_id
-
-def account_message(request, template_name='accounts/account_message.html'):
-    context = {}
-    return render(request, template_name, context)
 
 def patient_register(request):
 
@@ -213,26 +218,17 @@ def account_logout(request,
     messages.success(request, 'You have successfully logged out')
     return render(request, template_name, context)
 
-def check_user(request_ref_id, ref_id):
-    return request_ref_id == ref_id
 
-@login_required(login_url='/account/login')
+@login_required
 def userprofile_view(request, ref_id):
-    '''check if request user is the same logged in user'''
-    #if check_user(request.user.userprofile.ref_id,ref_id):
     template_name = 'accounts/account_profile_view_form.html'
     context = {}
     user_id = request.user.id
     profile = UserProfile.objects.get(pk=user_id)
     context['profile'] = profile
     return render(request, template_name, context)
-    '''
-    else:
-        template_name= 'accounts/account_message.html'
-        context = {}
-        messages.warning(request, "Opps, are you in the right place?")
-        return render(request, template_name, context)
-'''
+
+
 
 @login_required
 def userprofile_update(request, ref_id):
@@ -255,18 +251,42 @@ def userprofile_update(request, ref_id):
 
         return render(request, template_name, context)
 
+
+
+
+
+#==================================================================================
+#==================================================================================
+#           PATIENT-EMPLOYEE RELATIONSHIPS
+#==================================================================================
+#==================================================================================
+
+
+
 @permission_required('users.read_patient', raise_exception=True)
 def patient_list_view(request):
     template_name = 'accounts/account_patient_list.html'
-    patients = Patient.objects.all()
+    patients = Patient.objects.filter()
     context = {'patients':patients}
 
     return render(request, template_name, context)
 
-#custom method to trace user_id by ref_id
-def trace_user(ref_id):
-    user = UserProfile.objects.get(ref_id=ref_id)
-    return user.user
+@permission_required('users.read_patient', raise_exception=True)
+def patient_inactive_list_view(request):
+    template_name = 'accounts/account_patient_inactive_list.html'
+    patients = Patient.objects.filter(is_active=False)
+    context = {'patients':patients}
+    return render(request, template_name, context)
+
+    
+@permission_required('users.read_patient', raise_exception=True)
+def my_patient_list_view(request):
+    template_name = 'accounts/account_my_patient_list_view.html'
+    patients = request.user.employee.doctor.patient_set.all()
+    context = {'patients':patients}
+
+    return render(request, template_name, context)
+
 
 @permission_required('users.change_patient', raise_exception=True)
 def patient_activate(request, ref_id):
@@ -274,15 +294,20 @@ def patient_activate(request, ref_id):
     user = trace_user(ref_id)
     #get patient instance
     patient = user.patient
+
     #init the form with instance
+    available_docs = False
     form = PatientActivateForm(request.POST or None, instance=patient)
     if form.is_valid():
+        #update doctor
+        #doctors = form.cleaned_data['doctors']
         form.save()
+
         messages.success(request,"You have activated patient %s" %user.username)
         #now give patient permission to init/read med-info
         gain_perms(user)
         return redirect('/account/message')
 
-    context = {'form':form}
+    context = {'form':form, 'patient_username':user}
     return render(request, template_name, context)
 

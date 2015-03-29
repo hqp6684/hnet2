@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from accounts.views import trace_user
 
-from medicalinfo.forms import MedinfoInitForm
+from medicalinfo.forms import MedinfoInitForm, ChronicMedicalProblemsForm
 # Create your views here.
 def index(request):
     now = datetime.datetime.now()
@@ -32,7 +32,7 @@ def medinfo_view(request, ref_id):
 
     patient = trace_user(ref_id).patient
 
-    #security check on patient level
+    #ensure patient cannot view other patients med-info
     if medinfo_security_check(request.user, ref_id):
 
         if not patient.medicalinformation.initialized:
@@ -52,7 +52,6 @@ def medinfo_view(request, ref_id):
 @permission_required('medicalinfo.init_medinfo', raise_exception=True)
 def medinfo_init(request, ref_id):
     template_name= 'medicalinfo/medinfo_init_form.html'
-    context = {}
 
     #ensure patient cannot init other patients med-info
     if medinfo_security_check(request.user, ref_id):
@@ -61,24 +60,30 @@ def medinfo_init(request, ref_id):
         #get patient medicalinfo instance
         medinfo = patient.medicalinformation
         #init form with instance
-        form = MedinfoInitForm(request.POST or None, instance=medinfo)
+
+        form1 = MedinfoInitForm(request.POST or None, instance=medinfo, prefix='med-info')
+        form2 = ChronicMedicalProblemsForm(request.POST or None, prefix='chronical')
         if request.POST:
-            if form.is_valid():
-                medinfo = form.save(commit=False)
+            if form1.is_valid() and form2.is_valid:
+                medinfo = form1.save(commit=False)
                 #change init status 
+                chronical_med_problems = form2.save(commit=False)
+                chronical_med_problems.medinfo = medinfo
                 medinfo.initialized = True
+                #save to database
                 medinfo.save()
+                chronical_med_problems.save()
                 messages.success(request, "You have successfully updated your med-info")
                 return HttpResponseRedirect(reverse('med-info-detail', kwargs={'ref_id':ref_id})) 
             else:
                 messages.error(request, "Please correct the form")
         #messages.warning(request, "Opps, are you in the right place?")
 
-        context['form'] = form
+        context = {'form1':form1, 'form2': list(form2)}
         return render(request, template_name, context)
     else:
         return HttpResponseForbidden()
-
+'''
 @permission_required('medicalinfo.change_medicalinformation', raise_exception=True)
 def medinfo_init(request, ref_id):
     template_name= 'medicalinfo/medinfo_init_form.html'
@@ -105,7 +110,7 @@ def medinfo_init(request, ref_id):
     context['form'] = form
     return render(request, template_name, context)
 
-
+'''
 
 
 @login_required(login_url='/account/login')
