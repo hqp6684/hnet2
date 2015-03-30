@@ -7,8 +7,8 @@ from django.core.urlresolvers import reverse
 from simple_history.models import HistoricalRecords
 
 #to exclude custom fields when migrate with sould
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^localflavor\.us\.models"])
+#from south.modelsinspector import add_introspection_rules
+#add_introspection_rules([], ["^localflavor\.us\.models"])
 
 
 # Create your models here.
@@ -17,10 +17,10 @@ add_introspection_rules([], ["^localflavor\.us\.models"])
 class MedicalInformation(models.Model):
 	#history = HistoricalRecords()
 	patient = models.OneToOneField(Patient, primary_key=True, verbose_name='related Patient')
-	#primary_doc = models.ForeignKey(Doctor, verbose_name='Primary Doctor', null=True)
+	primary_doc = models.ForeignKey(Doctor, verbose_name='Primary Doctor', null=True)
 	initialized = models.BooleanField(default=False)
 	legal_name = models.CharField(max_length=100, blank=True)
-	#legal_name1 = models.CharField(max_length=100, blank=True)
+	legal_name1 = models.CharField(max_length=100, blank=True)
 
 	dOB = models.DateField(null=True)
 

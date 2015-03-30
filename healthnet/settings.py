@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'medicalinfo',
     'postman',
     'simple_history',
+    'localflavor',
 
 )
 

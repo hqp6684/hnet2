@@ -73,7 +73,6 @@ def index(request):
 import uuid
 def get_ref_id():
     ref_id = str(uuid.uuid4())[:11].replace('-', '').lower()
-    print ("get id %s") %ref_id
     try:
         id_exist = UserProfile.objects.get(ref_id=ref_id)
         get_ref_id()
