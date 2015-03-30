@@ -190,5 +190,5 @@ class PendingMessageAdmin(MessageAdmin):
         "Deleting is impossible"
         return False
 
-admin.site.register(Message, MessageAdmin)
-admin.site.register(PendingMessage, PendingMessageAdmin)
+#admin.site.register(Message, MessageAdmin)
+#admin.site.register(PendingMessage, PendingMessageAdmin)

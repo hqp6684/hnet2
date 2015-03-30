@@ -15,7 +15,7 @@ from simple_history.models import HistoricalRecords
 
 
 class MedicalInformation(models.Model):
-	#history = HistoricalRecords()
+	history = HistoricalRecords()
 	patient = models.OneToOneField(Patient, primary_key=True, verbose_name='related Patient')
 	primary_doc = models.ForeignKey(Doctor, verbose_name='Primary Doctor', null=True)
 	initialized = models.BooleanField(default=False)
