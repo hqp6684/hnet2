@@ -15,8 +15,10 @@ urlpatterns = patterns('',
 
 	url(r'^patient-inactive-list/$', views.patient_inactive_list_view, name='patient-inactive-list'),
 	url(r'^my-patients/$', views.my_patient_list_view, name='my-patient-list'),
+	url(r'^my-patients/archive/$', views.all_my_patient_list_view, name='my-patient-list-archive'),
 
 	url(r'^patient-list/(?P<ref_id>[\w]+)/$', views.patient_activate, name='patient-activate'),
+	url(r'^patient-list/(?P<ref_id>[\w]+)/discharge/$', views.patient_discharge, name='patient-discharge'),
 
 
 

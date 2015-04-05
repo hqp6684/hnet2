@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {%block content%}
-	<form action="" method="POST" class="container" style="background-color: #FFFFFF; max-width: 450px; border-radius: 8px;">{%csrf_token%}
+	<form action="" method="POST" class="container">{%csrf_token%}
 	<h1> register for an account</h1>
 
 		{%for field in form %}

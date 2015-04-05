@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     url(r'^account/', include('accounts.urls')),
     url(r'^medicalinfomation/', include('medicalinfo.urls'), name='med-info'),
 
+    
+    url(r'^contactus/$', 'healthnet.views.contactus', name='contactus'),
 
 	url(r'^$', 'healthnet.views.home', name='home'),
 

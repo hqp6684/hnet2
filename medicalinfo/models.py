@@ -15,14 +15,18 @@ from simple_history.models import HistoricalRecords
 
 
 class MedicalInformation(models.Model):
-	history = HistoricalRecords()
-	patient = models.OneToOneField(Patient, primary_key=True, verbose_name='related Patient')
-	primary_doc = models.ForeignKey(Doctor, verbose_name='Primary Doctor', null=True)
-	initialized = models.BooleanField(default=False)
-	legal_name = models.CharField(max_length=100, blank=True)
-	legal_name1 = models.CharField(max_length=100, blank=True)
+	#history = HistoricalRecords()
+	patient = models.OneToOneField(Patient, primary_key=True, verbose_name='Patient')
+	#primary_doc = models.ForeignKey(Doctor, verbose_name='Primary Doctor', null=True)
 
-	dOB = models.DateField(null=True)
+	initialized = models.BooleanField(default=False)
+	fName = models.CharField(max_length=40, verbose_name ="First Name")
+	lName = models.CharField(max_length=40, verbose_name ="Last Name",)
+	mName = models.CharField(max_length=40, verbose_name ="Middle Name", blank=True )
+
+	#dOB = models.DateField(null=True)
+	#current_problem = models.CharField(max_length=200, blank=True)
+
 
 
 	class Meta:
@@ -40,7 +44,7 @@ class MedicalInformation(models.Model):
 
 class ChronicMedicalProblems(models.Model):
 	#history = HistoricalRecords()
-	medinfo = models.OneToOneField(MedicalInformation, verbose_name="Med-info")
+	medinfo = models.OneToOneField(MedicalInformation, verbose_name="Med-info", primary_key=True)
 	high_blood = models.BooleanField(default=False, verbose_name="High Blood Pressure")
 	heart = models.BooleanField(default=False, verbose_name="Heart Disease")
 	diabete = models.BooleanField(default=False, verbose_name="Diabetes")
@@ -50,13 +54,20 @@ class ChronicMedicalProblems(models.Model):
 	asthma = models.BooleanField(default=False, verbose_name="Asthma")
 	other = models.CharField(max_length=200, blank=True, verbose_name="Others")
 
+	def __str__(self):
+		return self.medinfo.patient.patient.username
+
 
 class EmergencyContact(models.Model):
-	#history = HistoricalRecords()
+	#history = HistoricalRecords
 	patient = models.OneToOneField(Patient, primary_key=True)
 	name = models.CharField(max_length=100, blank=True, verbose_name="Emergency Contact Name")
 	phone = PhoneNumberField(blank=True, verbose_name="Phone")
 	relationship = models.CharField(max_length=20, blank=True, verbose_name="relationship to patient")
+
+	def __str__(self):
+		return self.patient.patient.username
+
 
 class InsuranceInformation(models.Model):
 	#history = HistoricalRecords()
@@ -65,7 +76,8 @@ class InsuranceInformation(models.Model):
 	carrier = models.CharField(max_length=100, verbose_name="Insurance Carrier", blank=True)
 	policy_number = models.CharField(max_length=10, verbose_name="Policy Number", blank=True)
 
-
+	def __str__(self):
+		return self.patient.patient.username
 
 
 

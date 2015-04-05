@@ -3,30 +3,61 @@
 {% block content %}
         <div class="container">
 
-      <form class="form-signin" action="" method="POST">{%csrf_token%}
+      <form action="" method="POST">{%csrf_token%}
       
-        <h2 class="form-signin-heading">Init Form</h2>
+        <h2>Medical Information Initialization</h2>
+    <div class="row">
+    <div class="col-md-6">
         {{form1.as_p}}
+    </div>
+    </div>
 
-    <table>
-        {% for field in form2|slice:":4" %}
+    <div class="row">
+    <div class="col-md-6">
+        <h4>Emergency Contact</h4><hr>
+        {{form3.as_p}}
+    </div>
+    <div class="col-md-6">
+        <h4>Insurance</h4><hr>
+        {{form4.as_p}}
+    </div>
+    </div>
+
+
+    <div class="row">
+    <div class="col-md-6">
+    <table class="table">
+
         <tr>
-            <td> {{ field.label_tag }} </td>
-            <td> {{ field }} </td>
+            <td>
+                {% for field in form2|slice:":4" %}
+                <div class="text-right">
+                {{ field.label_tag }} 
+                {{ field }}
+
+                </div>
+                {%endfor%}
+
+             </td>
+            <td>
+                {% for field in form2|slice:"4:" %}
+                <div class="text-left">
+                {{ field.label_tag }} 
+                {{ field }}
+
+                </div>
+                {%endfor%}
+
+             </td>
+
         </tr>
-        {% endfor %}
+
     </table>
-    .... Different code ....
-    <table>
-        {% for field in form2|slice:"4:" %}
-        <tr>
-            <td> {{ field.label_tag }} </td>
-            <td> {{ field }} </td>
-        </tr>
-        {% endfor %}
-    </table>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      </form>
+     <button class="btn btn-primary" type="submit">Submit</button>
+
+     </div>
+     </div>
+             </form>
 
     </div> <!-- /container -->
 

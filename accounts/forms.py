@@ -1,11 +1,13 @@
 from django import forms
 from django.contrib.auth.models import User
-from users.models import UserProfile, Patient, Employee, Doctor
+from users.models import UserProfile, Patient, Employee, Doctor, Nurse
 from django.forms.models import model_to_dict, fields_for_model
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 from django.contrib.auth import authenticate, get_user_model
 from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField  
+
+
 class UserCreationForm(forms.ModelForm):
 
     #error_css_class = 'alert-danger'
@@ -108,23 +110,31 @@ class NewPatientForm(forms.ModelForm):
 #activate new patient
 class PatientActivateForm(forms.ModelForm):
 
-    is_active = forms.BooleanField(label=_("Check this box to activate"),)
+    is_active = forms.BooleanField(label=_("Check this box to admit patient"),)
     primary_doctor = forms.ModelChoiceField(queryset=Doctor.objects.filter(available=True),
-        label=_("Available Doctors"),
+        label=_("Primary Doctor"),
+        widget= forms.Select(attrs={'class':'form-control'})
+        )
+    primary_nurse = forms.ModelChoiceField(queryset=Nurse.objects.filter(available=True),
+        label=_("Primary Nurse"),
         widget= forms.Select(attrs={'class':'form-control'})
         )
 
     class Meta:
         model = Patient
-    #DEBUG, need to add patient
-        exclude = ['patient']
-    #to show only available doctors
-    '''
-    def __init__(self, *args, **kwargs):
-        #available_docs = kwargs.pop('available_docs')
-        super(PatientActivateForm, self).__init__(*args,**kwargs)
-        self.fields['doctors'].queryset = Doctor.objects.filter(available=True)
-        '''
+        exclude = ['patient', 'doctors', 'nurses', ]
+
+
+#activate new patient
+class PatientDischargeForm(forms.ModelForm):
+
+    discharge = forms.BooleanField(label=_("Do you want to discharge this patient ?"),)
+
+    class Meta:
+        model = Patient
+        exclude = ['patient', 'doctors', 'nurses', 'primary_nurse', 'primary_doctor', 'is_active' ]
+
+
 
 class EmployeeCreationForm(forms.ModelForm):
     class Meta:

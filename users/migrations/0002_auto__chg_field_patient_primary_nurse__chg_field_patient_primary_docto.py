@@ -8,111 +8,28 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'UserProfile'
-        db.create_table(u'users_userprofile', (
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
-            ('ref_id', self.gf('django.db.models.fields.CharField')(default='abc', unique=True, max_length=120)),
-            ('fName', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('lName', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('mName', self.gf('django.db.models.fields.CharField')(max_length=40, blank=True)),
-            ('dOB', self.gf('django.db.models.fields.DateField')()),
-            ('sSN', self.gf('localflavor.us.models.USSocialSecurityNumberField')(unique=True, max_length=11)),
-            ('phoneNumber', self.gf('localflavor.us.models.PhoneNumberField')(max_length=20, null=True)),
-            ('streetAddress', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('city', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('state', self.gf('localflavor.us.models.USStateField')(max_length=2)),
-            ('zipcode', self.gf('localflavor.us.models.USZipCodeField')(max_length=10)),
-            ('email', self.gf('django.db.models.fields.EmailField')(unique=True, max_length=75)),
-            ('dateJoin', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal(u'users', ['UserProfile'])
 
-        # Adding model 'Employee'
-        db.create_table(u'users_employee', (
-            ('employee', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
-            ('employee_type', self.gf('django.db.models.fields.CharField')(max_length=1)),
-        ))
-        db.send_create_signal(u'users', ['Employee'])
+        # Changing field 'Patient.primary_nurse'
+        db.alter_column(u'users_patient', 'primary_nurse_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['users.Nurse']))
 
-        # Adding model 'Doctor'
-        db.create_table(u'users_doctor', (
-            ('doctor', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Employee'], unique=True, primary_key=True)),
-            ('specialty', self.gf('django.db.models.fields.CharField')(default='Unknown', max_length=100)),
-            ('available', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('max_patients', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=10)),
-            ('current_patient_count', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=0)),
-        ))
-        db.send_create_signal(u'users', ['Doctor'])
-
-        # Adding model 'Nurse'
-        db.create_table(u'users_nurse', (
-            ('nurse', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Employee'], unique=True, primary_key=True)),
-            ('available', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('max_patients', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=10)),
-            ('current_patient_count', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=0)),
-        ))
-        db.send_create_signal(u'users', ['Nurse'])
-
-        # Adding model 'Receptionist'
-        db.create_table(u'users_receptionist', (
-            ('receptionist', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Employee'], unique=True, primary_key=True)),
-        ))
-        db.send_create_signal(u'users', ['Receptionist'])
-
-        # Adding model 'Patient'
-        db.create_table(u'users_patient', (
-            ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
-            ('is_active', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('primary_doctor', self.gf('django.db.models.fields.related.ForeignKey')(related_name='primary_doctor', to=orm['users.Doctor'])),
-            ('primary_nurse', self.gf('django.db.models.fields.related.ForeignKey')(related_name='primary_nurse', to=orm['users.Nurse'])),
-        ))
-        db.send_create_signal(u'users', ['Patient'])
-
-        # Adding M2M table for field doctors on 'Patient'
-        m2m_table_name = db.shorten_name(u'users_patient_doctors')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('patient', models.ForeignKey(orm[u'users.patient'], null=False)),
-            ('doctor', models.ForeignKey(orm[u'users.doctor'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['patient_id', 'doctor_id'])
-
-        # Adding M2M table for field nurses on 'Patient'
-        m2m_table_name = db.shorten_name(u'users_patient_nurses')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('patient', models.ForeignKey(orm[u'users.patient'], null=False)),
-            ('nurse', models.ForeignKey(orm[u'users.nurse'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['patient_id', 'nurse_id'])
-
+        # Changing field 'Patient.primary_doctor'
+        db.alter_column(u'users_patient', 'primary_doctor_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['users.Doctor']))
 
     def backwards(self, orm):
-        # Deleting model 'UserProfile'
-        db.delete_table(u'users_userprofile')
 
-        # Deleting model 'Employee'
-        db.delete_table(u'users_employee')
+        # User chose to not deal with backwards NULL issues for 'Patient.primary_nurse'
+        raise RuntimeError("Cannot reverse this migration. 'Patient.primary_nurse' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration
+        # Changing field 'Patient.primary_nurse'
+        db.alter_column(u'users_patient', 'primary_nurse_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.Nurse']))
 
-        # Deleting model 'Doctor'
-        db.delete_table(u'users_doctor')
-
-        # Deleting model 'Nurse'
-        db.delete_table(u'users_nurse')
-
-        # Deleting model 'Receptionist'
-        db.delete_table(u'users_receptionist')
-
-        # Deleting model 'Patient'
-        db.delete_table(u'users_patient')
-
-        # Removing M2M table for field doctors on 'Patient'
-        db.delete_table(db.shorten_name(u'users_patient_doctors'))
-
-        # Removing M2M table for field nurses on 'Patient'
-        db.delete_table(db.shorten_name(u'users_patient_nurses'))
-
+        # User chose to not deal with backwards NULL issues for 'Patient.primary_doctor'
+        raise RuntimeError("Cannot reverse this migration. 'Patient.primary_doctor' and its values cannot be restored.")
+        
+        # The following code is provided here to aid in writing a correct migration
+        # Changing field 'Patient.primary_doctor'
+        db.alter_column(u'users_patient', 'primary_doctor_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.Doctor']))
 
     models = {
         u'auth.group': {
@@ -177,8 +94,8 @@ class Migration(SchemaMigration):
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'nurses': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Nurse']", 'null': 'True', 'symmetrical': 'False'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'}),
-            'primary_doctor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_doctor'", 'to': u"orm['users.Doctor']"}),
-            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'to': u"orm['users.Nurse']"})
+            'primary_doctor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_doctor'", 'null': 'True', 'to': u"orm['users.Doctor']"}),
+            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'null': 'True', 'to': u"orm['users.Nurse']"})
         },
         u'users.receptionist': {
             'Meta': {'object_name': 'Receptionist'},

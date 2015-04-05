@@ -22,3 +22,7 @@ def home(request, template_name='home.html'):
 def index(request, template_name='index.html'):
 	context = {}
 	return render(request, template_name, context)
+
+def contactus(request, template_name='contactus.html'):
+	context = {}
+	return render(request, template_name, context)

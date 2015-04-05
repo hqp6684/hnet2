@@ -19,8 +19,7 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="{% url 'home' %}">About Us<span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Contact Us</a></li>
+        <li><a href="/contactus">Contact Us</a></li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -34,8 +33,7 @@
 </header>
 
 {% else %}
-<!--ADMIN NAVBAR-->
-  {% if user.is_superuser %}
+<!--AUTHENTICATED NAVBAR-->
 <header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
 
 <nav class="collapse navbar-collapse bs-navbar-collapse">
@@ -54,20 +52,47 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
+        <li><a href="/contactus">Contact Us</a></li>
+
+        {% if user.is_superuser %}
         <li class="active"><a href="/admin">Admin <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Link</a></li>
+        <li><a href="{%url 'employee-register' %}">Staff Registration</a></li>
+
+        {%endif%}
+
+        {%if user.patient%}
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Med-info<span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
+            <li><a href="{{user.userprofile.get_medinfo_url}}">My Medical Info</a></li>
             <li class="divider"></li>
             <li><a href="#">Separated link</a></li>
             <li class="divider"></li>
             <li><a href="#">One more separated link</a></li>
           </ul>
         </li>
+
+        {%endif%}
+
+
+        {%if user.employee%}
+
+        <li><a href="{%url 'patient-inactive-list' %}">Patient - Inactive List</a></li>
+            
+        
+                   
+
+        {% if not user.employee.receptionist%}
+
+        <li><a href="{%url 'my-patient-list' %}">My Patients</a></li>
+
+        {%endif%}
+
+        
+
+        {%endif%}
+
+        <li><a href="#">Link</a></li>
       </ul>
       <form class="navbar-form navbar-left" role="search">
         <div class="form-group">
@@ -76,9 +101,20 @@
         <button type="submit" class="btn btn-default">Submit</button>
       </form>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/messages">Message</a></li>
-        <li><a href="{%url 'employee-register' %}">Staff Registration</a></li>
-        <li><a href="{% url 'account-logout' %}">Sign out</a></li>
+        <li><a href="{% url 'postman_inbox' %}">&raquo;&nbsp;Message</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{user.username}} <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="{{ user.userprofile.get_absolute_url }}">My Profile</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>
+
+           <li><a href="{% url 'account-logout' %}">Sign out</a></li>
+
    
       </ul>
     </div><!-- /.navbar-collapse -->
@@ -87,125 +123,17 @@
 <hr>
 </header>
 
-  {% else %}
-    {%if not user.patient%}
-    <!--NAVBAR for EMPLOYEE -->
-
-<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
-
-<nav class="collapse navbar-collapse bs-navbar-collapse">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="{% url 'home'%}">HealthNet</a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="{% url 'home' %}">About Us<span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Link</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">More <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{%url 'patient-inactive-list' %}">Patient - Inactive List</a></li>
-            
-            {%if not user.employee.employee_type == 'R'%}
-            <li><a href="{%url 'my-patient-list' %}">My Patients</a></li>
-            {%endif%}
-
-            <li><a href="#">Another action</a></li>
-            <li class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-            <li class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-      
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="{%url 'account-login' %}">link</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ user.userprofile.get_absolute_url }}">My Profile</a></li>
-            <li><a href="/messages">My Messages</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li class="divider"></li>
-            <li><a href="{% url 'account-logout' %}">Sign out</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-<hr>
-</header>
-
-    {%else%}
-<!-- NAVBAR FOR PATIENT -->
-<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
-
-<nav class="collapse navbar-collapse bs-navbar-collapse">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="{% url 'home'%}">HealthNet</a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="{% url 'home' %}">About Us<span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Contact Us</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-            <li class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-      
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="{{user.userprofile.get_medinfo_url}}">My Medical Info</a></li>
-        <li><a href="#">My Appointment</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Account <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ user.userprofile.get_absolute_url }}">My Profile</a></li>
-            <li><a href="/messages">My Messages</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li class="divider"></li>
-            <li><a href="{% url 'account-logout' %}">Sign out</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-<hr>
-</header>
-
-    {%endif%}
-  {%endif%}
+  {% endif %}
 
 
-{% endif %}
+        {% if user.is_superuser %}
+        {% elif user.patient%}
+
+        {% elif user.patient%}
+
+
+        {% elif user.employee%}
+
+
+        {%endif%}
+

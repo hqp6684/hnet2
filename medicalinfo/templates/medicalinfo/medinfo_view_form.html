@@ -3,12 +3,60 @@
 {% block content %}
         <div class="container">
 
-      <form class="form-signin" action="" method="POST">
+      <form action="" method="POST">{%csrf_token%}
       
-        <h2 class="form-signin-heading">My Med</h2>
-        {{medinfo.problem}}
-        <a class="btn btn-lg btn-primary" href="#">Edit</a>
-      </form>
+        <h2>Medical Information Initialization</h2>
+    <div class="row">
+    <div class="col-md-6">
+        {{form1.as_p}}
+    </div>
+    </div>
+
+    <div class="row">
+    <div class="col-md-6">
+        <h4>Emergency Contact</h4><hr>
+        {{form3.as_p}}
+    </div>
+    <div class="col-md-6">
+        <h4>Insurance</h4><hr>
+        {{form4.as_p}}
+    </div>
+    </div>
+
+
+    <div class="row">
+    <div class="col-md-6">
+    <table class="table">
+
+        <tr>
+            <td>
+                {% for field in form2|slice:":4" %}
+                <div class="text-right">
+                {{ field.label_tag }} 
+                {{ field }}
+
+                </div>
+                {%endfor%}
+
+             </td>
+            <td>
+                {% for field in form2|slice:"4:" %}
+                <div class="text-left">
+                {{ field.label_tag }} 
+                {{ field }}
+
+                </div>
+                {%endfor%}
+
+             </td>
+
+        </tr>
+
+    </table>
+  
+     </div>
+     </div>
+             </form>
 
     </div> <!-- /container -->
 

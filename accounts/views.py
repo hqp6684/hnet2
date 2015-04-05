@@ -11,7 +11,7 @@ import datetime
 
 from .forms import (UserCreationForm, UserProfileForm, 
     NewPatientForm, AuthenticationForm, EmployeeCreationForm,
-    PatientActivateForm,
+    PatientActivateForm, PatientDischargeForm,
 
 )
 
@@ -19,6 +19,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
+
 
 
 def account_message(request):
@@ -38,6 +39,8 @@ def gain_perms(user):
     edit_medinfo = Permission.objects.get(codename='change_medicalinformation')
     read_patient = Permission.objects.get(codename='read_patient')
     edit_patient = Permission.objects.get(codename='change_patient')
+    admit_patient = Permission.objects.get(codename='admit_patient')
+    discharge_patient = Permission.objects.get(codename='discharge_patient')
 
     try:
         if user.patient:
@@ -50,15 +53,21 @@ def gain_perms(user):
             user.user_permissions.add(edit_medinfo)
             user.user_permissions.add(read_patient)
             user.user_permissions.add(edit_patient)
+            user.user_permissions.add(admit_patient)
+            user.user_permissions.add(discharge_patient)
+
         elif user.employee.employee_type == 'N':
             user.user_permissions.add(read_medinfo)
             user.user_permissions.add(init_medinfo)
             user.user_permissions.add(edit_medinfo)
             user.user_permissions.add(read_patient)
-            user.user_permissions.add(edit_patient)         
+            user.user_permissions.add(edit_patient) 
+            user.user_permissions.add(admit_patient)
+
         elif user.employee.employee_type == 'R':
             user.user_permissions.add(read_patient)
-            user.user_permissions.add(edit_patient)
+            user.user_permissions.add(admit_patient)
+
 
 
 
@@ -79,6 +88,7 @@ def get_ref_id():
     except:
         return ref_id
 
+#patient registration method
 def patient_register(request):
 
     form1 = UserCreationForm(prefix="u")
@@ -100,10 +110,9 @@ def patient_register(request):
             new_patient = form3.save(commit=False)
             new_patient.patient = user
             new_patient.save()
+            #create new medinfo for this patient
             med_info = MedicalInformation.create(new_patient)
             med_info.save()
-            #gain medicalinfo permissions
-            #gain_medinfo_perms(user)
             messages.success(request, 'Thank you for joining us')
             #return to home 
             return redirect('/account/message')
@@ -144,7 +153,7 @@ def employee_register(request):
 
             #employee_type = new_employee.employee_type
             if new_employee.employee_type:
-                #gain medicalinfo permissions
+                #set medicalinfo permissions for user
                 gain_perms(user)
                 #create new doctor
                 if new_employee.employee_type == 'D':
@@ -178,6 +187,15 @@ def employee_register(request):
     template_name = 'accounts/account_employee_register_form.html'
     context = {'form1': form1, 'form2':form2, 'form3':form3}
     return render(request, template_name, context)
+
+
+#==================================================================================
+#==================================================================================
+#           AUTHENTICATION
+#           LOGIN-LOGOUT-USER PROFILE
+#==================================================================================
+#==================================================================================
+
 
 def account_login(request, 
     template_name='accounts/account_login_form.html'):
@@ -261,15 +279,16 @@ def userprofile_update(request, ref_id):
 #==================================================================================
 
 
-
+#display all patients
 @permission_required('users.read_patient', raise_exception=True)
 def patient_list_view(request):
     template_name = 'accounts/account_patient_list.html'
-    patients = Patient.objects.filter()
+    patients = Patient.objects.filter(is_active=True)
     context = {'patients':patients}
 
     return render(request, template_name, context)
 
+#Display all inactive patients for admission 
 @permission_required('users.read_patient', raise_exception=True)
 def patient_inactive_list_view(request):
     template_name = 'accounts/account_patient_inactive_list.html'
@@ -277,36 +296,135 @@ def patient_inactive_list_view(request):
     context = {'patients':patients}
     return render(request, template_name, context)
 
-    
+#For doctor and nurse to see their patients
 @permission_required('users.read_patient', raise_exception=True)
 def my_patient_list_view(request):
     template_name = 'accounts/account_my_patient_list_view.html'
-    patients = request.user.employee.doctor.patient_set.all()
+    #get user's patients
+    context={}
+    try:
+        if request.user.employee.doctor:
+            patients = request.user.employee.doctor.patient_set.filter(is_active=True)
+    except:
+        if request.user.employee.nurse:
+            patients = request.user.employee.nurse.patient_set.filter(is_active=True)
     context = {'patients':patients}
 
     return render(request, template_name, context)
 
+#For doctor and nurse to see all their patients (active/discharged patient)
+@permission_required('users.read_patient', raise_exception=True)
+def all_my_patient_list_view(request):
+    template_name = 'accounts/account_all_my_patient_list_view.html'
+    #get user's patients
+    context={}
+    try:
+        if request.user.employee.doctor:
+            patients = request.user.employee.doctor.patient_set.all()
+    except:
+        if request.user.employee.nurse:
+            patients = request.user.employee.nurse.patient_set.all()
+    context = {'patients':patients}
 
-@permission_required('users.change_patient', raise_exception=True)
+    return render(request, template_name, context)
+    
+
+#Patient admission
+#Activate patient and set new permissions for patients
+@permission_required('users.admit_patient', raise_exception=True)
+#ref_id to get patient
 def patient_activate(request, ref_id):
     template_name = 'accounts/account_patient_activate_form.html'
-    user = trace_user(ref_id)
+    #find patient by ref id
+    p = trace_user(ref_id)
     #get patient instance
-    patient = user.patient
+    patient = p.patient
 
-    #init the form with instance
-    available_docs = False
     form = PatientActivateForm(request.POST or None, instance=patient)
-    if form.is_valid():
-        #update doctor
-        #doctors = form.cleaned_data['doctors']
-        form.save()
+    if request.POST:
+        if form.is_valid():
+            #update doctor
+            #doctors = form.cleaned_data['doctors']
+            form.save(commit=False)
+            #update patient count for assigned doctor and nurses
+            primary_doc = form.cleaned_data['primary_doctor']
+            primary_doc.current_patient_count += 1
+            if primary_doc.current_patient_count >= primary_doc.max_patients:
+                primary_doc.available = False
 
-        messages.success(request,"You have activated patient %s" %user.username)
-        #now give patient permission to init/read med-info
-        gain_perms(user)
-        return redirect('/account/message')
+            primary_doc.save()
 
-    context = {'form':form, 'patient_username':user}
+            primary_nurse = form.cleaned_data['primary_nurse']
+            primary_nurse.current_patient_count += 1
+            if primary_nurse.current_patient_count >= primary_nurse.max_patients:
+                primary_nurse.available = False
+            
+
+            primary_nurse.save()
+
+            patient.doctors.add(primary_doc)
+            patient.nurses.add(primary_nurse)
+
+            form.save()
+
+
+
+            messages.success(request,"You have admited patient %s" %p.username)
+            #now give patient permission to init/read med-info
+            gain_perms(p)
+            return redirect('/account/message')
+        else:
+            messages.error(request, 'Please correct the fields with error')
+
+    context = {'form':form, 'patient_username':p.username}
+    return render(request, template_name, context)
+
+
+
+#Patient charge
+#Activate patient and set new permissions for patients
+@permission_required('users.discharge_patient', raise_exception=True)
+#ref_id to get patient
+def patient_discharge(request, ref_id):
+    template_name = 'accounts/account_patient_discharge_form.html'
+    #find patient by ref id
+    p = trace_user(ref_id)
+    #get patient instance
+    patient = p.patient
+
+    form = PatientDischargeForm(request.POST or None, instance=patient)
+    if request.POST:
+        if form.is_valid():
+            #update doctor
+            #doctors = form.cleaned_data['doctors']
+            form.save(commit=False)
+            patient.is_active = False
+            patient.save()
+            #update patient count for assigned doctor and nurses
+            doctors = patient.doctors.all()
+            for doc in doctors:
+                doc.current_patient_count -= 1
+                if doc.current_patient_count < doc.max_patients:
+                    doc.available = True
+
+                doc.save()
+
+            nurses = patient.nurses.all()
+            for nurse in nurses:
+                nurse.current_patient_count -= 1
+                if nurse.current_patient_count > nurse.max_patients:
+                    nurse.available = False
+
+                nurse.save()
+
+
+
+            messages.success(request,"You have discharged patient %s" %p.username)
+            #now give patient permission to init/read med-info
+            return redirect('/account/message')
+        else:
+            messages.error(request, 'Please correct the fields with error')
+
+    context = {'form':form, 'patient_username':p.username}
     return render(request, template_name, context)
 

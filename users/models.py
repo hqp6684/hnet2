@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from localflavor.us.models import USStateField, USZipCodeField, USSocialSecurityNumberField, PhoneNumberField
 from django.core.urlresolvers import reverse
+from simple_history.models import HistoricalRecords
 
 # Create your models here.
 
@@ -31,7 +32,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
-
     '''return url for user object'''
     def get_absolute_url(self):
         #return "/users/%i/" % self.user.id
@@ -40,6 +40,9 @@ class UserProfile(models.Model):
         return reverse('userprofile-update', kwargs={'ref_id':self.ref_id})
     def get_activate_url(self):
         return reverse('patient-activate', kwargs={'ref_id': self.ref_id})
+    def get_discharge_url(self):
+        return reverse('patient-discharge', kwargs={'ref_id': self.ref_id})
+       
 
     #this is for med-info
     #get url to view user med-info
@@ -72,19 +75,27 @@ class Employee(models.Model):
         return info
 
 class Doctor(models.Model):
-    doctor = models.OneToOneField(Employee, primary_key=True)
+    doctor = models.OneToOneField(Employee, primary_key=True, verbose_name="Doctor")
+    specialty = models.CharField(max_length=100, default="Unknown")
     available = models.BooleanField(default=True)
-    max_patients = models.PositiveIntegerField(default=10)
+    max_patients = models.PositiveSmallIntegerField(default=10)
+    current_patient_count = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return self.doctor._employee_info()
+
     @classmethod
     def create(doc, employee):
         doctor = doc(doctor=employee)
         return doctor
 
+
 class Nurse(models.Model):
-    nurse = models.OneToOneField(Employee, primary_key=True)
+    nurse = models.OneToOneField(Employee, primary_key=True, verbose_name="Nurse")
+    available = models.BooleanField(default=True)
+    max_patients = models.PositiveSmallIntegerField(default=10)
+    current_patient_count = models.PositiveSmallIntegerField(default=0)
+  
 
     @classmethod
     def create(nur, employee):
@@ -110,18 +121,26 @@ class Receptionist(models.Model):
 
 
 class Patient(models.Model):
-
+    #history = HistoricalRecords()
     patient = models.OneToOneField(User,primary_key=True)
     is_active = models.BooleanField(default=False)
-    primary_doctor = models.ForeignKey(Doctor, verbose_name="Primary Doctor", null=True)
+    primary_doctor = models.ForeignKey(Doctor, verbose_name="Primary Doctor", related_name="primary_doctor", null=True)
+    doctors = models.ManyToManyField(Doctor, verbose_name="Doctors", null=True)
+    primary_nurse = models.ForeignKey(Nurse, verbose_name="Primary Nurse", related_name="primary_nurse", null=True)
+    nurses = models.ManyToManyField(Nurse, verbose_name="Nurses", null=True)
+
     
     class Meta:
         permissions = (
             ("read_patient", "can view patient"),
+            ("admit_patient", "can admit patient"),
+            #to discharge, change is_active to false
+            ("discharge_patient", "can discharge patient"),
         )
         
     def __str__(self):
         return self.patient.username
+
 
 
 

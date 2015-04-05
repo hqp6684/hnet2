@@ -10,7 +10,10 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from accounts.views import trace_user
 
-from medicalinfo.forms import MedinfoInitForm, ChronicMedicalProblemsForm
+from medicalinfo.forms import (MedinfoInitForm, 
+        ChronicMedicalProblemsForm, EmergencyContactForm, 
+        InsuranceInformationForm,
+)
 # Create your views here.
 def index(request):
     now = datetime.datetime.now()
@@ -26,7 +29,9 @@ def medinfo_security_check(request_user, ref_if):
         #if user is not patient
         return True
 
-
+#
+#To view med-info of a patient
+#
 @permission_required('medicalinfo.read_medinfo', raise_exception=True)
 def medinfo_view(request, ref_id):
 
@@ -34,21 +39,41 @@ def medinfo_view(request, ref_id):
 
     #ensure patient cannot view other patients med-info
     if medinfo_security_check(request.user, ref_id):
-
+        #check if the patient med-info is new
         if not patient.medicalinformation.initialized:
-            messages.info(request, "You need to fill out this form")
+            messages.info(request, "You need to fill out this following form")
             #redirect patient to med-info init page
             return HttpResponseRedirect(reverse('med-info-init', kwargs={'ref_id':ref_id}))
         else:
+
             template_name= 'medicalinfo/medinfo_view_form.html'
             medinfo = patient.medicalinformation
-            context = {'medinfo':medinfo}
+            chronical_problems = medinfo.chronicmedicalproblems
+
+ 
+            medinfo = patient.medicalinformation
+            chronic = medinfo.chronicmedicalproblems
+            emer = patient.emergencycontact
+            insurance = patient.insuranceinformation
+
+            #init form with instance
+
+            form1 = MedinfoInitForm(instance=medinfo, prefix='med-info')
+            form2 = ChronicMedicalProblemsForm(instance=chronic, prefix='chronical')
+            form3 = EmergencyContactForm(instance=emer, prefix='emercontact')
+            form4 = InsuranceInformationForm(instance=insurance, prefix='insurance')
+      
+            context = {'form1':form1, 'form2': list(form2), 'form3':form3, 'form4':form4}
+
             #messages.warning(request, "Opps, are you in the right place?")
             return render(request, template_name, context)
     else:
         return HttpResponseForbidden()
 
 
+#
+#Initilize a new med-info for a patient.
+#
 @permission_required('medicalinfo.init_medinfo', raise_exception=True)
 def medinfo_init(request, ref_id):
     template_name= 'medicalinfo/medinfo_init_form.html'
@@ -63,23 +88,37 @@ def medinfo_init(request, ref_id):
 
         form1 = MedinfoInitForm(request.POST or None, instance=medinfo, prefix='med-info')
         form2 = ChronicMedicalProblemsForm(request.POST or None, prefix='chronical')
+        form3 = EmergencyContactForm(request.POST or None, prefix='emercontact')
+        form4 = InsuranceInformationForm(request.POST or None, prefix='insurance')
+
         if request.POST:
-            if form1.is_valid() and form2.is_valid:
+            if form1.is_valid() and form2.is_valid and form3.is_valid and form4.is_valid:
                 medinfo = form1.save(commit=False)
-                #change init status 
                 chronical_med_problems = form2.save(commit=False)
                 chronical_med_problems.medinfo = medinfo
+
+                emergency_contact = form3.save(commit=False)
+                emergency_contact.patient = patient
+
+                insurance = form4.save(commit=False)
+                insurance.patient = patient
+
+                #change init status 
                 medinfo.initialized = True
+
                 #save to database
                 medinfo.save()
                 chronical_med_problems.save()
+                emergency_contact.save()
+                insurance.save()
+
                 messages.success(request, "You have successfully updated your med-info")
                 return HttpResponseRedirect(reverse('med-info-detail', kwargs={'ref_id':ref_id})) 
             else:
                 messages.error(request, "Please correct the form")
         #messages.warning(request, "Opps, are you in the right place?")
 
-        context = {'form1':form1, 'form2': list(form2)}
+        context = {'form1':form1, 'form2': list(form2), 'form3':form3, 'form4':form4}
         return render(request, template_name, context)
     else:
         return HttpResponseForbidden()
