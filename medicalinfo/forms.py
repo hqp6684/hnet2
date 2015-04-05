@@ -7,8 +7,9 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 
 from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField
 
-from medicalinfo.models import MedicalInformation, ChronicMedicalProblems, EmergencyContact, InsuranceInformation
-
+from medicalinfo.models import (MedicalInformation, ChronicMedicalProblems, 
+    EmergencyContact, InsuranceInformation, Allergen, Case,
+)
 
 
 class ChronicMedicalProblemsForm(forms.ModelForm):
@@ -20,6 +21,12 @@ class MedinfoInitForm(forms.ModelForm):
     class Meta:
         model = MedicalInformation
         exclude = ['patient', 'primary_doc', 'initialized']
+
+class CaseInitForm(forms.ModelForm):
+    class Meta:
+        model = Case
+        exclude = ['patient',]
+
 
 
 
@@ -43,6 +50,11 @@ class InsuranceInformationForm(forms.ModelForm):
         model = InsuranceInformation
         exclude = ['patient']
 
+class AllergenForm(forms.ModelForm):
+
+    class Meta:
+        model = Allergen
+        exclude = ['medinfo']
 
 
 class UserCreationForm(forms.ModelForm):

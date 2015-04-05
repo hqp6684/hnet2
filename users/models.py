@@ -51,6 +51,8 @@ class UserProfile(models.Model):
     #get url to init user med-info
     def get_medinfo_init_url(self):
         return reverse('med-info-init', kwargs={'ref_id': self.ref_id})
+    def get_case_init_url(self):
+        return reverse('case-init', kwargs={'ref_id': self.ref_id})
 
 
 

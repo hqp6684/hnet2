@@ -26,9 +26,10 @@
 			  </button>
 			  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_medinfo_url}}" role="button">Medical Information</a></li>
-			    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another action</a></li>
 
 			    {%if user.employee.doctor %}
+			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_case_init_url}}">New Diagnosis</a></li>
+
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_discharge_url}}">Discharge</a></li>
 			    {%endif%}
 

@@ -5,7 +5,7 @@
 
       <form action="" method="POST">{%csrf_token%}
       
-        <h2>Medical Information Initialization</h2>
+        <h2>Medical Information</h2>
     <div class="row">
     <div class="col-md-6">
         {{form1.as_p}}
@@ -26,37 +26,35 @@
 
     <div class="row">
     <div class="col-md-6">
+    <h4>Chronical Problem History</h4><hr>
     <table class="table">
-
         <tr>
             <td>
                 {% for field in form2|slice:":4" %}
                 <div class="text-right">
                 {{ field.label_tag }} 
                 {{ field }}
-
                 </div>
                 {%endfor%}
-
              </td>
             <td>
                 {% for field in form2|slice:"4:" %}
                 <div class="text-left">
                 {{ field.label_tag }} 
                 {{ field }}
-
                 </div>
                 {%endfor%}
-
              </td>
-
         </tr>
-
     </table>
-  
+     </div>
+
+     <div class="col-md-6">
+     <h4>Allergens</h4><hr>
+     {{form5.as_p}}
      </div>
      </div>
-             </form>
+</form>
 
     </div> <!-- /container -->
 

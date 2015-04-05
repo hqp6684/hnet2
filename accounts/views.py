@@ -41,6 +41,7 @@ def gain_perms(user):
     edit_patient = Permission.objects.get(codename='change_patient')
     admit_patient = Permission.objects.get(codename='admit_patient')
     discharge_patient = Permission.objects.get(codename='discharge_patient')
+    init_case = Permission.objects.get(codename='init_case')
 
     try:
         if user.patient:
@@ -55,6 +56,8 @@ def gain_perms(user):
             user.user_permissions.add(edit_patient)
             user.user_permissions.add(admit_patient)
             user.user_permissions.add(discharge_patient)
+            user.user_permissions.add(init_case)
+
 
         elif user.employee.employee_type == 'N':
             user.user_permissions.add(read_medinfo)

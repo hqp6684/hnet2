@@ -24,6 +24,7 @@ class MedicalInformation(models.Model):
 	lName = models.CharField(max_length=40, verbose_name ="Last Name",)
 	mName = models.CharField(max_length=40, verbose_name ="Middle Name", blank=True )
 
+	problem = models.CharField(max_length=200, verbose_name="Your concerns/problems")
 	#dOB = models.DateField(null=True)
 	#current_problem = models.CharField(max_length=200, blank=True)
 
@@ -33,6 +34,7 @@ class MedicalInformation(models.Model):
 		permissions = (
 			("init_medinfo", "can initialize med-info"),
 			("read_medinfo", "can view med-info"),
+			("init_case", "can init diagnosis"),
 		)
 
 	@classmethod
@@ -53,6 +55,18 @@ class ChronicMedicalProblems(models.Model):
 	thyroid = models.BooleanField(default=False, verbose_name="Thyroid")
 	asthma = models.BooleanField(default=False, verbose_name="Asthma")
 	other = models.CharField(max_length=200, blank=True, verbose_name="Others")
+
+	def __str__(self):
+		return self.medinfo.patient.patient.username
+
+class Allergen(models.Model):
+	medinfo = models.OneToOneField(MedicalInformation, verbose_name="Med-info", primary_key=True)
+	food = models.BooleanField(default=False, verbose_name="Food Allergic")
+	food_allegies = models.CharField(max_length=200, blank=True, verbose_name="Food")
+	drug = models.BooleanField(default=False, verbose_name="Drug Allergic")
+	drug_allegies = models.CharField(max_length=200, blank=True, verbose_name="Drugs")
+	environmental = models.BooleanField(default=False, verbose_name="Environmental Allergic")
+	environmental_allegies = models.CharField(max_length=200, blank=True, verbose_name="Environment")
 
 	def __str__(self):
 		return self.medinfo.patient.patient.username
@@ -78,6 +92,15 @@ class InsuranceInformation(models.Model):
 
 	def __str__(self):
 		return self.patient.patient.username
+
+class Case(models.Model):
+	#history = HistoricalRecords()
+	patient = models.ForeignKey(Patient, verbose_name='Related Patient')
+	problem = models.CharField(max_length=200, verbose_name='Reason')
+	diagnosis = models.CharField(max_length=200, verbose_name='Diagnosis')
+	test_result = models.CharField(max_length=200, verbose_name='Test Result')
+	check_in = models.DateField(auto_now_add=True, auto_now=False)
+	updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
 
 
