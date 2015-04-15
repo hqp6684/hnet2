@@ -93,14 +93,35 @@ class InsuranceInformation(models.Model):
 	def __str__(self):
 		return self.patient.patient.username
 
+#
+#When a patient have a problem, a case will be created and will be used by doctor to 
+#diagnose, update test result, and prescription
+#
 class Case(models.Model):
+	CASE_STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('C', 'Closed'),
+        ('N', 'New'),
+        )
+
 	#history = HistoricalRecords()
-	patient = models.ForeignKey(Patient, verbose_name='Related Patient')
-	problem = models.CharField(max_length=200, verbose_name='Reason')
-	diagnosis = models.CharField(max_length=200, verbose_name='Diagnosis')
-	test_result = models.CharField(max_length=200, verbose_name='Test Result')
-	check_in = models.DateField(auto_now_add=True, auto_now=False)
+	medinfo = models.ForeignKey(MedicalInformation, verbose_name="Med-info")
+	status = models.CharField(max_length=1, choices=CASE_STATUS_CHOICES, verbose_name='Case Status', default='N')
+	#patient = models.ForeignKey(Patient, verbose_name='Related Patient')
+	problem = models.CharField(max_length=200, verbose_name='Problem/Concern')
+	diagnosis = models.CharField(max_length=200, verbose_name='Diagnosis', default='diagnosis')
+	test_result = models.CharField(max_length=200, verbose_name='Test Result', default='insert result here')
+	created = models.DateField(auto_now_add=True, auto_now=False)
 	updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
+	def __str__(self):
+		return self.problem
+
+
+		'''
+	@classmethod
+	def create(info, patient):
+		new_info = info(patient=patient)
+		return new_info'''
 
 

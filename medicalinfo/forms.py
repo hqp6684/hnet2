@@ -23,12 +23,16 @@ class MedinfoInitForm(forms.ModelForm):
         exclude = ['patient', 'primary_doc', 'initialized']
 
 class CaseInitForm(forms.ModelForm):
+
     class Meta:
         model = Case
-        exclude = ['patient',]
-
-
-
+        exclude = ['medinfo','status','diagnosis','test_result',]
+'''
+    def __init__(self, *args, **kwargs):
+        my_medinfo = kwargs.pop('medinfo')
+        super(CaseInitForm, self).__init__(*args, **kwargs)
+        self.fields['medinfo'] = my_medinfo
+'''
 
 class MedinfoViewForm(forms.ModelForm):
 
@@ -55,6 +59,12 @@ class AllergenForm(forms.ModelForm):
     class Meta:
         model = Allergen
         exclude = ['medinfo']
+
+
+
+
+
+
 
 
 class UserCreationForm(forms.ModelForm):

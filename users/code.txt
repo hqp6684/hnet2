@@ -1,14 +1,9 @@
-from django.db import models
-from django.contrib.auth.models import User
-from localflavor.us.models import USStateField, USZipCodeField, USSocialSecurityNumberField, PhoneNumberField
-from django.core.urlresolvers import reverse
-from simple_history.models import HistoricalRecords
-
-# Create your models here.
+Source Code for Inspection 
+S261-11d
+#=== From users/models.py ===
 
 
-class UserProfile(models.Model):
-    #history = HistoricalRecords()
+ UserProfile(models.Model):
     user = models.OneToOneField(User, primary_key=True)
     #reference id. This id is used to hind user primary key
     ref_id = models.CharField(max_length=120, default='abc', unique=True)
@@ -26,37 +21,14 @@ class UserProfile(models.Model):
     dateJoin = models.DateField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
-
     def __str__(self):
         return self.user.username
 
     '''return url for user object'''
     def get_absolute_url(self):
-        #return "/users/%i/" % self.user.id
         return reverse('userprofile-detail', kwargs={'ref_id':self.ref_id})
-    def get_absolute_url_update(self):
-        return reverse('userprofile-update', kwargs={'ref_id':self.ref_id})
-    def get_activate_url(self):
-        return reverse('patient-activate', kwargs={'ref_id': self.ref_id})
-    def get_discharge_url(self):
-        return reverse('patient-discharge', kwargs={'ref_id': self.ref_id})
-       
-    #this is for med-info
-    #get url to view user med-info
-    def get_medinfo_url(self):
-        return reverse('med-info-detail', kwargs={'ref_id': self.ref_id})
-    #get url to init user med-info
-    def get_medinfo_init_url(self):
-        return reverse('med-info-init', kwargs={'ref_id': self.ref_id})
-    def get_case_init_url(self):
-        return reverse('case-init', kwargs={'ref_id': self.ref_id})
-
-
-
-
 
 class Employee(models.Model):
-    #history = HistoricalRecords()
     employee = models.OneToOneField(User, primary_key=True, verbose_name="Employee username")
     
     EMPLOYEE_CHOICES = (
@@ -75,7 +47,6 @@ class Employee(models.Model):
         return info
 
 class Doctor(models.Model):
-    #history = HistoricalRecords()
     doctor = models.OneToOneField(Employee, primary_key=True, verbose_name="Doctor")
     specialty = models.CharField(max_length=100, default="Unknown")
     available = models.BooleanField(default=True)
@@ -91,52 +62,19 @@ class Doctor(models.Model):
         return doctor
 
 
-class Nurse(models.Model):
-    #history = HistoricalRecords()
-    nurse = models.OneToOneField(Employee, primary_key=True, verbose_name="Nurse")
-    available = models.BooleanField(default=True)
-    max_patients = models.PositiveSmallIntegerField(default=10)
-    current_patient_count = models.PositiveSmallIntegerField(default=0)
-  
-
-    @classmethod
-    def create(nur, employee):
-        nurse = nur(nurse=employee)
-        return nurse
-
-    def __str__(self):
-        return self.nurse._employee_info()
-
-
-class Receptionist(models.Model):
-    receptionist = models.OneToOneField(Employee, primary_key=True)
-
-    @classmethod
-    def create(rep, employee):
-        receptionist = rep(receptionist=employee)
-        return receptionist
-
-
-
-
-
-
-
 class Patient(models.Model):
-    #history = HistoricalRecords()
     patient = models.OneToOneField(User,primary_key=True, verbose_name="Patient")
     is_active = models.BooleanField(default=False)
-    primary_doctor = models.ForeignKey(Doctor, verbose_name="Primary Doctor", related_name="primary_doctor", null=True)
+    primary_doctor = models.ForeignKey(Doctor, verbose_name="Primary Doctor",related_name="primary_doctor", null=True)
     doctors = models.ManyToManyField(Doctor, verbose_name="Doctors", null=True)
     primary_nurse = models.ForeignKey(Nurse, verbose_name="Primary Nurse", related_name="primary_nurse", null=True)
     nurses = models.ManyToManyField(Nurse, verbose_name="Nurses", null=True)
 
-    
     class Meta:
         permissions = (
             ("read_patient", "can view patient"),
             ("admit_patient", "can admit patient"),
-            #to discharge patient, change is_active to false
+            #to discharge patient, allow to change is_active to false
             ("discharge_patient", "can discharge patient"),
         )
         
@@ -144,5 +82,36 @@ class Patient(models.Model):
         return self.patient.username
 
 
+#===== From accounts/views.py =====
+
+def account_login(request, 
+    template_name='accounts/account_login_form.html'):
+
+    context = {}
+    if request.user.is_authenticated():
+        messages.info(request, 'You have already logged in')
+        return redirect('/account/message')
+
+    if request.method =='POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request,user)
+            messages.success(request, 'You have successfully logged in')
+            #check if user is an active patient and notify him/her 
+            try:
+                if user.patient:
+                    if not user.patient.is_active:
+                        messages.info(request,'You are not registered as our patient yet. Please contact us for more information')
+            except:
+                #pass if user is employee
+                pass
+            return redirect('/account/message')
+        else:
+            messages.error(request, 'Please enter a correct username and password. Note that both fields may be case-sensitive.')
+    else:
+        form = AuthenticationForm()
+    context['form'] = form
+    return render(request, template_name,context)
 
 

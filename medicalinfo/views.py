@@ -35,6 +35,9 @@ def medinfo_security_check(request_user, ref_if):
 @permission_required('medicalinfo.read_medinfo', raise_exception=True)
 def medinfo_view(request, ref_id):
 
+    #disable the ability to write in form fields
+    view_only = True
+
     patient = trace_user(ref_id).patient
 
     #ensure patient cannot view other patients med-info
@@ -49,15 +52,14 @@ def medinfo_view(request, ref_id):
             template_name= 'medicalinfo/medinfo_view_form.html'
             medinfo = patient.medicalinformation
             chronical_problems = medinfo.chronicmedicalproblems
-
- 
+            #forms     
             medinfo = patient.medicalinformation
             chronic = medinfo.chronicmedicalproblems
             emer = patient.emergencycontact
             insurance = patient.insuranceinformation
             allergen = medinfo.allergen
 
-            #init form with instance
+            #init form with instances
 
             form1 = MedinfoInitForm(instance=medinfo, prefix='med-info')
             form2 = ChronicMedicalProblemsForm(instance=chronic, prefix='chronical')
@@ -65,7 +67,7 @@ def medinfo_view(request, ref_id):
             form4 = InsuranceInformationForm(instance=insurance, prefix='insurance')
             form5 = AllergenForm(instance=allergen)
       
-            context = {'form1':form1, 'form2': list(form2), 'form3':form3, 'form4':form4, 'form5':form5}
+            context = {'view_only':view_only,'form1':form1, 'form2': list(form2), 'form3':form3, 'form4':form4, 'form5':form5, 'ref_id':ref_id}
 
             #messages.warning(request, "Opps, are you in the right place?")
             return render(request, template_name, context)
@@ -126,6 +128,43 @@ def medinfo_init(request, ref_id):
         #messages.warning(request, "Opps, are you in the right place?")
 
         context = {'form1':form1, 'form2': list(form2), 'form3':form3, 'form4':form4, 'form5':form5}
+        return render(request, template_name, context)
+    else:
+        return HttpResponseForbidden()
+
+
+#
+#Initilize a new med-case
+#
+#@permission_required('medicalinfo.init_case', raise_exception=True)
+def case_init(request, ref_id):
+    template_name= 'medicalinfo/medinfo_new_case_form.html'
+
+    #ensure patient cannot init other patients med-info
+    if medinfo_security_check(request.user, ref_id):
+
+        patient = trace_user(ref_id).patient
+        #get patient medicalinfo instance
+        medinfo = patient.medicalinformation
+
+        form1 = CaseInitForm(request.POST or None, initial={'medinfo': medinfo})
+   
+        if request.POST:
+            if form1.is_valid():
+                #create new case
+                #new_case = form1.save(commit=False)
+                #new_case.medinfo = medinfo
+                #new_case.save()
+                form1.save()
+
+
+                messages.success(request, "You have successfully summitted a new case")
+                return HttpResponseRedirect(reverse('med-info-detail', kwargs={'ref_id':ref_id})) 
+            else:
+                messages.error(request, "Please correct the form")
+        #messages.warning(request, "Opps, are you in the right place?")
+
+        context = {'form1':form1}
         return render(request, template_name, context)
     else:
         return HttpResponseForbidden()

@@ -52,6 +52,10 @@
           $('.datepicker').datepicker();
           $('#datetimepicker').datetimepicker();
           $(".form_datetime").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+          {% if view_only %}
+          $("form :input").attr("disabled","disabled");
+          {%endif%}
+
         })
       </script>
 

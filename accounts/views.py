@@ -47,6 +47,7 @@ def gain_perms(user):
         if user.patient:
             user.user_permissions.add(read_medinfo)
             user.user_permissions.add(init_medinfo)
+            #user.user_permissions.add(init_case)
     except:
         if user.employee.employee_type == 'D':
             user.user_permissions.add(read_medinfo)
@@ -93,41 +94,46 @@ def get_ref_id():
 
 #patient registration method
 def patient_register(request):
+    if request.user.is_authenticated():
+        messages.info(request, 'You have already registered')
+        return redirect('/account/message')
+    else:
+        form1 = UserCreationForm(prefix="u")
+        form2 = UserProfileForm(prefix="p")
+        form3 = NewPatientForm(prefix="n")
 
-    form1 = UserCreationForm(prefix="u")
-    form2 = UserProfileForm(prefix="p")
-    form3 = NewPatientForm(prefix="n")
-
-    if request.POST:
-        #print request.POST
-        form1 = UserCreationForm(request.POST, prefix="u")
-        form2 = UserProfileForm(request.POST, prefix="p")
-
-
-        if form1.is_valid() and form2.is_valid():
-            user = form1.save()
-            profile = form2.save(commit=False)
-            profile.user = user
-            profile.ref_id = get_ref_id()
-            profile.save()
-            new_patient = form3.save(commit=False)
-            new_patient.patient = user
-            new_patient.save()
-            #create new medinfo for this patient
-            med_info = MedicalInformation.create(new_patient)
-            med_info.save()
-            messages.success(request, 'Thank you for joining us')
-            #return to home 
-            return redirect('/account/message')
-        else:
-            messages.error(request, 'Please correct all the fields with error')
+        if request.POST:
+            #print request.POST
+            form1 = UserCreationForm(request.POST, prefix="u")
+            form2 = UserProfileForm(request.POST, prefix="p")
 
 
-    template_name = 'accounts/account_patient_form.html'
-    context = {'form1': form1, 'form2':form2}
-    return render(request, template_name, context)
+            if form1.is_valid() and form2.is_valid():
+                user = form1.save()
+                profile = form2.save(commit=False)
+                profile.user = user
+                profile.ref_id = get_ref_id()
+                profile.save()
+                new_patient = form3.save(commit=False)
+                new_patient.patient = user
+                new_patient.save()
+                #create new medinfo for this patient
+                med_info = MedicalInformation.create(new_patient)
+                med_info.save()
+                messages.success(request, 'Thank you for joining us')
+                #return to home 
+                return redirect('/account/message')
+            else:
+                messages.error(request, 'Please correct all the fields with error')
 
+
+        template_name = 'accounts/account_patient_form.html'
+        context = {'form1': form1, 'form2':form2}
+        return render(request, template_name, context)
+
+@permission_required('users.add_employee', raise_exception=True)
 def employee_register(request):
+    
     form1 = UserCreationForm(prefix="u")
     form2 = UserProfileForm(prefix="p")
     form3 = EmployeeCreationForm(prefix="e")
@@ -214,16 +220,17 @@ def account_login(request,
             user = form.get_user()
             auth_login(request,user)
             messages.success(request, 'You have successfully logged in')
-            #check if patient is active and notify him/her to enroll
+            #check if user is an active patient and notify him/her 
             try:
                 if user.patient:
                     if not user.patient.is_active:
                         messages.info(request,'You are not registered as our patient yet. Please contact us for more information')
             except:
+                #pass if user is employee
                 pass
             return redirect('/account/message')
         else:
-            messages.error(request, 'Please enter a correct username and password. Note that both fields may be case-sensitive.')
+            messages.error(request, 'Please enter a correct username and password.Note that both fields may be case-sensitive.')
     else:
         form = AuthenticationForm()
     context['form'] = form
