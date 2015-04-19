@@ -47,6 +47,10 @@ INSTALLED_APPS = (
     'postman',
     'simple_history',
     'localflavor',
+    'schedule',
+
+    #'mptt',
+    #easy_thumbnails',
 
 )
 
@@ -129,4 +133,9 @@ POSTMAN_AUTO_MODERATE_AS = True  # default is None
 
 
 LOGIN_URL = '/account/login'
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.request",
+)
+
 
