@@ -8,27 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Removing unique constraint on 'Case', fields ['medinfo']
-        db.delete_unique(u'medicalinfo_case', ['medinfo_id'])
+        # Adding field 'Prescription.created'
+        db.add_column(u'medicalinfo_prescription', 'created',
+                      self.gf('django.db.models.fields.DateField')(auto_now_add=True, default=datetime.datetime(2015, 4, 18, 0, 0), blank=True),
+                      keep_default=False)
 
-        # Adding field 'Case.id'
-        db.add_column(u'medicalinfo_case', u'id',
-                      self.gf('django.db.models.fields.AutoField')(default=1, primary_key=True),
+        # Adding field 'Prescription.updated'
+        db.add_column(u'medicalinfo_prescription', 'updated',
+                      self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default=datetime.datetime(2015, 4, 18, 0, 0), blank=True),
                       keep_default=False)
 
 
-        # Changing field 'Case.medinfo'
-        db.alter_column(u'medicalinfo_case', 'medinfo_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['medicalinfo.MedicalInformation']))
-
     def backwards(self, orm):
-        # Deleting field 'Case.id'
-        db.delete_column(u'medicalinfo_case', u'id')
+        # Deleting field 'Prescription.created'
+        db.delete_column(u'medicalinfo_prescription', 'created')
 
-
-        # Changing field 'Case.medinfo'
-        db.alter_column(u'medicalinfo_case', 'medinfo_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['medicalinfo.MedicalInformation'], primary_key=True))
-        # Adding unique constraint on 'Case', fields ['medinfo']
-        db.create_unique(u'medicalinfo_case', ['medinfo_id'])
+        # Deleting field 'Prescription.updated'
+        db.delete_column(u'medicalinfo_prescription', 'updated')
 
 
     models = {
@@ -81,12 +77,12 @@ class Migration(SchemaMigration):
         u'medicalinfo.case': {
             'Meta': {'object_name': 'Case'},
             'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'diagnosis': ('django.db.models.fields.CharField', [], {'default': "'diagnosis'", 'max_length': '200'}),
+            'diagnosis': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'medinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.MedicalInformation']"}),
             'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
-            'test_result': ('django.db.models.fields.CharField', [], {'default': "'insert result here'", 'max_length': '200'}),
+            'test_result': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'medicalinfo.chronicmedicalproblems': {
@@ -123,6 +119,16 @@ class Migration(SchemaMigration):
             'mName': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Patient']", 'unique': 'True', 'primary_key': 'True'}),
             'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'})
+        },
+        u'medicalinfo.prescription': {
+            'Meta': {'object_name': 'Prescription'},
+            'case': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.Case']"}),
+            'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'drug': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'intruction': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'refill': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '0'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'users.doctor': {
             'Meta': {'object_name': 'Doctor'},

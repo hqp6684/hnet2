@@ -1,6 +1,6 @@
 from django.contrib import admin
 from medicalinfo.models import (MedicalInformation, ChronicMedicalProblems, 
-	EmergencyContact, InsuranceInformation, Allergen,
+	EmergencyContact, InsuranceInformation, Allergen, Case
 )
 from simple_history.admin import SimpleHistoryAdmin
 
@@ -10,3 +10,4 @@ admin.site.register(ChronicMedicalProblems, SimpleHistoryAdmin)
 admin.site.register(EmergencyContact, SimpleHistoryAdmin)
 admin.site.register(InsuranceInformation, SimpleHistoryAdmin)
 admin.site.register(Allergen, SimpleHistoryAdmin)
+admin.site.register(Case, SimpleHistoryAdmin)

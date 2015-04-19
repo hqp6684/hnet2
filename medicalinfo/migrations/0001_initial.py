@@ -11,18 +11,17 @@ class Migration(SchemaMigration):
         # Adding model 'MedicalInformation'
         db.create_table(u'medicalinfo_medicalinformation', (
             ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Patient'], unique=True, primary_key=True)),
-            ('primary_doc', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.Doctor'], null=True)),
             ('initialized', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('legal_name', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('legal_name1', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('dOB', self.gf('django.db.models.fields.DateField')(null=True)),
+            ('fName', self.gf('django.db.models.fields.CharField')(max_length=40)),
+            ('lName', self.gf('django.db.models.fields.CharField')(max_length=40)),
+            ('mName', self.gf('django.db.models.fields.CharField')(max_length=40, blank=True)),
+            ('problem', self.gf('django.db.models.fields.CharField')(max_length=200)),
         ))
         db.send_create_signal(u'medicalinfo', ['MedicalInformation'])
 
         # Adding model 'ChronicMedicalProblems'
         db.create_table(u'medicalinfo_chronicmedicalproblems', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('medinfo', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['medicalinfo.MedicalInformation'], unique=True)),
+            ('medinfo', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['medicalinfo.MedicalInformation'], unique=True, primary_key=True)),
             ('high_blood', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('heart', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('diabete', self.gf('django.db.models.fields.BooleanField')(default=False)),
@@ -33,6 +32,18 @@ class Migration(SchemaMigration):
             ('other', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
         ))
         db.send_create_signal(u'medicalinfo', ['ChronicMedicalProblems'])
+
+        # Adding model 'Allergen'
+        db.create_table(u'medicalinfo_allergen', (
+            ('medinfo', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['medicalinfo.MedicalInformation'], unique=True, primary_key=True)),
+            ('food', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('food_allegies', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+            ('drug', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('drug_allegies', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+            ('environmental', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('environmental_allegies', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+        ))
+        db.send_create_signal(u'medicalinfo', ['Allergen'])
 
         # Adding model 'EmergencyContact'
         db.create_table(u'medicalinfo_emergencycontact', (
@@ -52,6 +63,19 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'medicalinfo', ['InsuranceInformation'])
 
+        # Adding model 'Case'
+        db.create_table(u'medicalinfo_case', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('medinfo', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['medicalinfo.MedicalInformation'])),
+            ('status', self.gf('django.db.models.fields.CharField')(default='N', max_length=1)),
+            ('problem', self.gf('django.db.models.fields.CharField')(max_length=200)),
+            ('diagnosis', self.gf('django.db.models.fields.CharField')(default='None', max_length=200)),
+            ('test_result', self.gf('django.db.models.fields.CharField')(default='None', max_length=200)),
+            ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
+            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+        ))
+        db.send_create_signal(u'medicalinfo', ['Case'])
+
 
     def backwards(self, orm):
         # Deleting model 'MedicalInformation'
@@ -60,11 +84,17 @@ class Migration(SchemaMigration):
         # Deleting model 'ChronicMedicalProblems'
         db.delete_table(u'medicalinfo_chronicmedicalproblems')
 
+        # Deleting model 'Allergen'
+        db.delete_table(u'medicalinfo_allergen')
+
         # Deleting model 'EmergencyContact'
         db.delete_table(u'medicalinfo_emergencycontact')
 
         # Deleting model 'InsuranceInformation'
         db.delete_table(u'medicalinfo_insuranceinformation')
+
+        # Deleting model 'Case'
+        db.delete_table(u'medicalinfo_case')
 
 
     models = {
@@ -104,6 +134,27 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        u'medicalinfo.allergen': {
+            'Meta': {'object_name': 'Allergen'},
+            'drug': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'drug_allegies': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'environmental': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'environmental_allegies': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'food': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'food_allegies': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'medinfo': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['medicalinfo.MedicalInformation']", 'unique': 'True', 'primary_key': 'True'})
+        },
+        u'medicalinfo.case': {
+            'Meta': {'object_name': 'Case'},
+            'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'diagnosis': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'medinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.MedicalInformation']"}),
+            'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
+            'test_result': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
+        },
         u'medicalinfo.chronicmedicalproblems': {
             'Meta': {'object_name': 'ChronicMedicalProblems'},
             'asthma': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -111,8 +162,7 @@ class Migration(SchemaMigration):
             'diabete': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'heart': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'high_blood': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'medinfo': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['medicalinfo.MedicalInformation']", 'unique': 'True'}),
+            'medinfo': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['medicalinfo.MedicalInformation']", 'unique': 'True', 'primary_key': 'True'}),
             'other': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
             'stroke': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'thyroid': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
@@ -133,12 +183,12 @@ class Migration(SchemaMigration):
         },
         u'medicalinfo.medicalinformation': {
             'Meta': {'object_name': 'MedicalInformation'},
-            'dOB': ('django.db.models.fields.DateField', [], {'null': 'True'}),
+            'fName': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
             'initialized': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'legal_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'legal_name1': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'lName': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
+            'mName': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Patient']", 'unique': 'True', 'primary_key': 'True'}),
-            'primary_doc': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.Doctor']", 'null': 'True'})
+            'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'})
         },
         u'users.doctor': {
             'Meta': {'object_name': 'Doctor'},

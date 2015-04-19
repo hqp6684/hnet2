@@ -355,7 +355,7 @@ def patient_activate(request, ref_id):
         if form.is_valid():
             #update doctor
             #doctors = form.cleaned_data['doctors']
-            form.save(commit=False)
+            this_patient = form.save(commit=False)
             #update patient count for assigned doctor and nurses
             primary_doc = form.cleaned_data['primary_doctor']
             primary_doc.current_patient_count += 1
@@ -375,7 +375,8 @@ def patient_activate(request, ref_id):
             patient.doctors.add(primary_doc)
             patient.nurses.add(primary_nurse)
 
-            form.save()
+            this_patient.last_action = 'A'
+            this_patient.save()
 
 
 
@@ -391,7 +392,7 @@ def patient_activate(request, ref_id):
 
 
 
-#Patient charge
+#Patient discharge
 #Activate patient and set new permissions for patients
 @permission_required('users.discharge_patient', raise_exception=True)
 #ref_id to get patient
@@ -409,6 +410,7 @@ def patient_discharge(request, ref_id):
             #doctors = form.cleaned_data['doctors']
             form.save(commit=False)
             patient.is_active = False
+            patient.last_action = 'D' 
             patient.save()
             #update patient count for assigned doctor and nurses
             doctors = patient.doctors.all()

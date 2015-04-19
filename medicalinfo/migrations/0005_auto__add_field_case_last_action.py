@@ -8,30 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Case'
-        db.create_table(u'medicalinfo_case', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('patient', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.Patient'])),
-            ('problem', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('diagnosis', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('test_result', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('check_in', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['Case'])
-
-        # Adding field 'MedicalInformation.problem'
-        db.add_column(u'medicalinfo_medicalinformation', 'problem',
-                      self.gf('django.db.models.fields.CharField')(default='problem', max_length=200),
+        # Adding field 'Case.last_action'
+        db.add_column(u'medicalinfo_case', 'last_action',
+                      self.gf('django.db.models.fields.CharField')(default='N', max_length=1),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'Case'
-        db.delete_table(u'medicalinfo_case')
-
-        # Deleting field 'MedicalInformation.problem'
-        db.delete_column(u'medicalinfo_medicalinformation', 'problem')
+        # Deleting field 'Case.last_action'
+        db.delete_column(u'medicalinfo_case', 'last_action')
 
 
     models = {
@@ -83,12 +68,14 @@ class Migration(SchemaMigration):
         },
         u'medicalinfo.case': {
             'Meta': {'object_name': 'Case'},
-            'check_in': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'diagnosis': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'diagnosis': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'patient': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.Patient']"}),
+            'last_action': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
+            'medinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.MedicalInformation']"}),
             'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'test_result': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
+            'test_result': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'medicalinfo.chronicmedicalproblems': {
@@ -125,6 +112,16 @@ class Migration(SchemaMigration):
             'mName': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Patient']", 'unique': 'True', 'primary_key': 'True'}),
             'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'})
+        },
+        u'medicalinfo.prescription': {
+            'Meta': {'object_name': 'Prescription'},
+            'case': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.Case']"}),
+            'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'drug': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'instruction': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'refill': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '0'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'users.doctor': {
             'Meta': {'object_name': 'Doctor'},

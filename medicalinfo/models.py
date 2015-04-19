@@ -103,14 +103,20 @@ class Case(models.Model):
         ('C', 'Closed'),
         ('N', 'New'),
         )
+	LAST_ACTION_CHOIES = (
+		('N', 'Created'),
+		('D', 'Updated'),
+		('P', 'New Prescription Updated'),
+		)
 
 	#history = HistoricalRecords()
 	medinfo = models.ForeignKey(MedicalInformation, verbose_name="Med-info")
 	status = models.CharField(max_length=1, choices=CASE_STATUS_CHOICES, verbose_name='Case Status', default='N')
 	#patient = models.ForeignKey(Patient, verbose_name='Related Patient')
 	problem = models.CharField(max_length=200, verbose_name='Problem/Concern')
-	diagnosis = models.CharField(max_length=200, verbose_name='Diagnosis', default='diagnosis')
-	test_result = models.CharField(max_length=200, verbose_name='Test Result', default='insert result here')
+	diagnosis = models.CharField(max_length=200, verbose_name='Diagnosis', default='None')
+	test_result = models.CharField(max_length=200, verbose_name='Test Result', default='None')
+	last_action = models.CharField(max_length=1, choices=LAST_ACTION_CHOIES, verbose_name='Last action', default='N')
 	created = models.DateField(auto_now_add=True, auto_now=False)
 	updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
@@ -123,5 +129,19 @@ class Case(models.Model):
 	def create(info, patient):
 		new_info = info(patient=patient)
 		return new_info'''
+
+class Prescription(models.Model):
+	#history = HistoricalRecords()
+	case = models.ForeignKey(Case, verbose_name="Related Case")
+	#doc = models.ForeignKey(Doctor, verbose_name="Doctor")
+	drug = models.CharField(max_length=200, verbose_name="Drug")
+	instruction = models. CharField(max_length=200, verbose_name="Instruction")
+	refill = models.PositiveSmallIntegerField(default=0, verbose_name="Refill")
+	created = models.DateField(auto_now_add=True, auto_now=False)
+	updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+	def __str__(self):
+		return self.case + " " + self.drug
+
 
 

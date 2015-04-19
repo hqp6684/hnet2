@@ -64,8 +64,8 @@ class Migration(SchemaMigration):
         db.create_table(u'users_patient', (
             ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True, primary_key=True)),
             ('is_active', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('primary_doctor', self.gf('django.db.models.fields.related.ForeignKey')(related_name='primary_doctor', to=orm['users.Doctor'])),
-            ('primary_nurse', self.gf('django.db.models.fields.related.ForeignKey')(related_name='primary_nurse', to=orm['users.Nurse'])),
+            ('primary_doctor', self.gf('django.db.models.fields.related.ForeignKey')(related_name='primary_doctor', null=True, to=orm['users.Doctor'])),
+            ('primary_nurse', self.gf('django.db.models.fields.related.ForeignKey')(related_name='primary_nurse', null=True, to=orm['users.Nurse'])),
         ))
         db.send_create_signal(u'users', ['Patient'])
 
@@ -177,8 +177,8 @@ class Migration(SchemaMigration):
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'nurses': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Nurse']", 'null': 'True', 'symmetrical': 'False'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'}),
-            'primary_doctor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_doctor'", 'to': u"orm['users.Doctor']"}),
-            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'to': u"orm['users.Nurse']"})
+            'primary_doctor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_doctor'", 'null': 'True', 'to': u"orm['users.Doctor']"}),
+            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'null': 'True', 'to': u"orm['users.Nurse']"})
         },
         u'users.receptionist': {
             'Meta': {'object_name': 'Receptionist'},

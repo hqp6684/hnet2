@@ -1,0 +1,57 @@
+{%extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+    <form action="" method="POST">{%csrf_token%}
+      
+    <div class="row">
+    <div class="col-md-6">
+    <h3>Case Detail</h3>
+
+        {{form1.as_p}}
+    </div>
+
+    <div class="col-md-6">
+    	<h3>Prescription</h3>
+      <div clsas="container">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Drug</th>
+                        <th>Refill</th>
+                        <th>Instruction</th>
+                    </tr>
+                </thead>
+                <tbody>
+{%for pres in prescriptions%}
+                    <tr>
+                        <th>{{pres.drug}}</th>
+                        <th>{{pres.refill}}</th>
+                        <th>{{pres.instruction}}</th>
+
+                    </tr>
+
+{%endfor%}
+                </tbody>
+
+            </table>
+        </div>
+
+        {{form2.as_p}}
+    {%if user.employee.doctor %}
+    <button class="btn btn-primary" type="submit">Update</button>
+    {%endif%}
+ 
+
+    </div>
+
+    </div>
+
+    </form>
+
+</div> <!-- /container -->
+
+
+{% endblock %}
+

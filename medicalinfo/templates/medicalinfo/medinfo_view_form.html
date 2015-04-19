@@ -11,7 +11,10 @@
         {{form1.as_p}}
     </div>
     <div class="col-md-6">
-    <a class="btn btn-default" href="{%url 'case-init' ref_id=ref_id%}">Something</a>
+    <a class="btn btn-default" href="{%url 'case-list-view' ref_id=ref_id%}">Cases</a>
+    <a class="btn btn-default" href="{%url 'case-init' ref_id=ref_id%}">New Case Inquiry</a>
+
+
     </div>
     </div>
 
@@ -57,6 +60,8 @@
      {{form5.as_p}}
      </div>
      </div>
+         <button class="btn btn-primary" type="submit">Update</button>
+ 
 </form>
 
     </div> <!-- /container -->

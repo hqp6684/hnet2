@@ -8,28 +8,24 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'Patient.last_action'
+        db.add_column(u'users_patient', 'last_action',
+                      self.gf('django.db.models.fields.CharField')(default='N', max_length=1),
+                      keep_default=False)
 
-        # Changing field 'Patient.primary_nurse'
-        db.alter_column(u'users_patient', 'primary_nurse_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['users.Nurse']))
+        # Adding field 'Patient.updated'
+        db.add_column(u'users_patient', 'updated',
+                      self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default=datetime.datetime(2015, 4, 19, 0, 0), blank=True),
+                      keep_default=False)
 
-        # Changing field 'Patient.primary_doctor'
-        db.alter_column(u'users_patient', 'primary_doctor_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['users.Doctor']))
 
     def backwards(self, orm):
+        # Deleting field 'Patient.last_action'
+        db.delete_column(u'users_patient', 'last_action')
 
-        # User chose to not deal with backwards NULL issues for 'Patient.primary_nurse'
-        raise RuntimeError("Cannot reverse this migration. 'Patient.primary_nurse' and its values cannot be restored.")
-        
-        # The following code is provided here to aid in writing a correct migration
-        # Changing field 'Patient.primary_nurse'
-        db.alter_column(u'users_patient', 'primary_nurse_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.Nurse']))
+        # Deleting field 'Patient.updated'
+        db.delete_column(u'users_patient', 'updated')
 
-        # User chose to not deal with backwards NULL issues for 'Patient.primary_doctor'
-        raise RuntimeError("Cannot reverse this migration. 'Patient.primary_doctor' and its values cannot be restored.")
-        
-        # The following code is provided here to aid in writing a correct migration
-        # Changing field 'Patient.primary_doctor'
-        db.alter_column(u'users_patient', 'primary_doctor_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.Doctor']))
 
     models = {
         u'auth.group': {
@@ -92,10 +88,12 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Patient'},
             'doctors': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Doctor']", 'null': 'True', 'symmetrical': 'False'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'last_action': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
             'nurses': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Nurse']", 'null': 'True', 'symmetrical': 'False'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'}),
             'primary_doctor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_doctor'", 'null': 'True', 'to': u"orm['users.Doctor']"}),
-            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'null': 'True', 'to': u"orm['users.Nurse']"})
+            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'null': 'True', 'to': u"orm['users.Nurse']"}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'users.receptionist': {
             'Meta': {'object_name': 'Receptionist'},

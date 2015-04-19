@@ -8,14 +8,24 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Deleting field 'Prescription.intruction'
+        db.delete_column(u'medicalinfo_prescription', 'intruction')
 
-        # Changing field 'Case.medinfo'
-        db.alter_column(u'medicalinfo_case', 'medinfo_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['medicalinfo.MedicalInformation'], primary_key=True))
+        # Adding field 'Prescription.instruction'
+        db.add_column(u'medicalinfo_prescription', 'instruction',
+                      self.gf('django.db.models.fields.CharField')(default='1 a day', max_length=200),
+                      keep_default=False)
+
 
     def backwards(self, orm):
+        # Adding field 'Prescription.intruction'
+        db.add_column(u'medicalinfo_prescription', 'intruction',
+                      self.gf('django.db.models.fields.CharField')(default='1 ad day', max_length=200),
+                      keep_default=False)
 
-        # Changing field 'Case.medinfo'
-        db.alter_column(u'medicalinfo_case', 'medinfo_id', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['medicalinfo.MedicalInformation'], unique=True, primary_key=True))
+        # Deleting field 'Prescription.instruction'
+        db.delete_column(u'medicalinfo_prescription', 'instruction')
+
 
     models = {
         u'auth.group': {
@@ -67,11 +77,12 @@ class Migration(SchemaMigration):
         u'medicalinfo.case': {
             'Meta': {'object_name': 'Case'},
             'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'diagnosis': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'medinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.MedicalInformation']", 'primary_key': 'True'}),
+            'diagnosis': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'medinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.MedicalInformation']"}),
             'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'status': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
-            'test_result': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
+            'test_result': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'medicalinfo.chronicmedicalproblems': {
@@ -108,6 +119,16 @@ class Migration(SchemaMigration):
             'mName': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Patient']", 'unique': 'True', 'primary_key': 'True'}),
             'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'})
+        },
+        u'medicalinfo.prescription': {
+            'Meta': {'object_name': 'Prescription'},
+            'case': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.Case']"}),
+            'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'drug': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'instruction': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'refill': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '0'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'users.doctor': {
             'Meta': {'object_name': 'Doctor'},

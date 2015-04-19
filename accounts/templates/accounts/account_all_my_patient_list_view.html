@@ -5,7 +5,7 @@
 <div class="container">
 <div><h1>Patient List</h1></div>
 
-<table class="table">
+<table class="table table-hover">
 <thead>
 	<tr>
 		<th>Patient Name</th>
@@ -17,7 +17,7 @@
 	{%for patient in patients%}
 	<tr>
 		<th> {{patient}}</th>
-		<th>#</th>
+		<th>{{patient.get_last_action_display}} on {{patient.updated}}</th>
 		<th>{{patient.is_active}}
 		<th>
 			<div class="dropdown">

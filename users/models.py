@@ -50,6 +50,9 @@ class UserProfile(models.Model):
         return reverse('med-info-init', kwargs={'ref_id': self.ref_id})
     def get_case_init_url(self):
         return reverse('case-init', kwargs={'ref_id': self.ref_id})
+    def get_case_list_url(self):
+        return reverse('case-list-view', kwargs={'ref_id': self.ref_id})
+
 
 
 
@@ -81,6 +84,7 @@ class Doctor(models.Model):
     available = models.BooleanField(default=True)
     max_patients = models.PositiveSmallIntegerField(default=10)
     current_patient_count = models.PositiveSmallIntegerField(default=0)
+
 
     def __str__(self):
         return self.doctor._employee_info()
@@ -130,6 +134,14 @@ class Patient(models.Model):
     doctors = models.ManyToManyField(Doctor, verbose_name="Doctors", null=True)
     primary_nurse = models.ForeignKey(Nurse, verbose_name="Primary Nurse", related_name="primary_nurse", null=True)
     nurses = models.ManyToManyField(Nurse, verbose_name="Nurses", null=True)
+    LAST_ACTION_CHOICES = (
+        ('N', 'Joined'),
+        ('A', 'Admitted'),
+        ('D', 'Discharged'),
+        )
+    last_action = models.CharField(max_length=1, choices=LAST_ACTION_CHOICES, default='N')
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
 
     
     class Meta:

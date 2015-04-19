@@ -8,7 +8,7 @@
 <div><h1>Active Patient List</h1></div>
 <a class="btn btn-default" href="{% url 'my-patient-list-archive' %} ">All</a>
 
-<table class="table">
+<table class="table table-hover">
 <thead>
 	<tr>
 		<th>Patient Name</th>
@@ -19,7 +19,7 @@
 	{%for patient in patients%}
 	<tr>
 		<th> {{patient}}</th>
-		<th>#</th>
+		<th>{{patient.get_last_action_display}} on {{patient.updated}}</th>
 		<th>
 			<div class="dropdown">
 			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
@@ -31,6 +31,7 @@
 
 			    {%if user.employee.doctor %}
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_case_init_url}}">New Diagnosis</a></li>
+			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_case_list_url}}">View Cases</a></li>
 
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_discharge_url}}">Discharge</a></li>
 			    {%endif%}

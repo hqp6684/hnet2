@@ -9,6 +9,7 @@
 	<tr>
 		<th>Patient Name</th>
 		<th>Active Status</th>
+		<th>Last Action</th>
 	</tr>
 </thead>
 <tbody>
@@ -16,6 +17,7 @@
 	<tr>
 		<th> {{patient}}</th>
 		<th>{{patient.is_active}}</th>
+		<th>{{patient.get_last_action_display}} on {{patient.updated}}</th>
 		<th>  <a class="btn btn-default" href="{{patient.patient.userprofile.get_activate_url}}" role="button">Admit Patient</a></th>
 	</tr>
 {%endfor%}

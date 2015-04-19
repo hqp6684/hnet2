@@ -105,6 +105,7 @@ class UserProfileForm(forms.ModelForm):
 class NewPatientForm(forms.ModelForm):
     class Meta:
         model = Patient
+        exclude = ['last_action']
 
 
 #activate new patient
@@ -122,7 +123,7 @@ class PatientActivateForm(forms.ModelForm):
 
     class Meta:
         model = Patient
-        exclude = ['patient', 'doctors', 'nurses', ]
+        exclude = ['patient', 'doctors', 'nurses', 'last_action' ]
 
 
 #activate new patient
@@ -132,7 +133,7 @@ class PatientDischargeForm(forms.ModelForm):
 
     class Meta:
         model = Patient
-        exclude = ['patient', 'doctors', 'nurses', 'primary_nurse', 'primary_doctor', 'is_active' ]
+        exclude = ['patient', 'doctors', 'nurses', 'primary_nurse', 'primary_doctor', 'is_active' , 'last_action']
 
 
 

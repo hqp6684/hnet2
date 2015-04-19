@@ -12,7 +12,7 @@ from accounts.views import trace_user
 
 from medicalinfo.forms import (MedinfoInitForm, 
         ChronicMedicalProblemsForm, EmergencyContactForm, 
-        InsuranceInformationForm, AllergenForm, CaseInitForm
+        InsuranceInformationForm, AllergenForm, CaseInitForm, CaseForm, PrescriptionForm,
 )
 # Create your views here.
 def index(request):
@@ -34,9 +34,6 @@ def medinfo_security_check(request_user, ref_if):
 #
 @permission_required('medicalinfo.read_medinfo', raise_exception=True)
 def medinfo_view(request, ref_id):
-
-    #disable the ability to write in form fields
-    view_only = True
 
     patient = trace_user(ref_id).patient
 
@@ -61,13 +58,26 @@ def medinfo_view(request, ref_id):
 
             #init form with instances
 
-            form1 = MedinfoInitForm(instance=medinfo, prefix='med-info')
-            form2 = ChronicMedicalProblemsForm(instance=chronic, prefix='chronical')
-            form3 = EmergencyContactForm(instance=emer, prefix='emercontact')
-            form4 = InsuranceInformationForm(instance=insurance, prefix='insurance')
-            form5 = AllergenForm(instance=allergen)
-      
-            context = {'view_only':view_only,'form1':form1, 'form2': list(form2), 'form3':form3, 'form4':form4, 'form5':form5, 'ref_id':ref_id}
+            form1 = MedinfoInitForm(request.POST or None, instance=medinfo, prefix='med-info')
+            form2 = ChronicMedicalProblemsForm(request.POST or None, instance=chronic, prefix='chronical')
+            form3 = EmergencyContactForm(request.POST or None, instance=emer, prefix='emercontact')
+            form4 = InsuranceInformationForm(request.POST or None, instance=insurance, prefix='insurance')
+            form5 = AllergenForm(request.POST or None, instance=allergen)
+    
+            if request.POST:
+                if form1.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid():
+                    form1.save()
+                    form2.save()
+                    form3.save()
+                    form4.save()
+                    form5.save()
+
+                    return HttpResponseRedirect(reverse('med-info-detail', kwargs={'ref_id':ref_id})) 
+                else:
+                    messages.error(request, "Please correct the form")
+            #messages.warning(request, "Opps, are you in the right place?")
+
+            context = {'form1':form1, 'form2': list(form2), 'form3':form3, 'form4':form4, 'form5':form5, 'ref_id':ref_id}
 
             #messages.warning(request, "Opps, are you in the right place?")
             return render(request, template_name, context)
@@ -97,7 +107,7 @@ def medinfo_init(request, ref_id):
         form5 = AllergenForm(request.POST or None, prefix='allergen')
 
         if request.POST:
-            if form1.is_valid() and form2.is_valid and form3.is_valid and form4.is_valid and form5.is_valid:
+            if form1.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid():
                 medinfo = form1.save(commit=False)
                 chronical_med_problems = form2.save(commit=False)
                 chronical_med_problems.medinfo = medinfo
@@ -136,7 +146,7 @@ def medinfo_init(request, ref_id):
 #
 #Initilize a new med-case
 #
-#@permission_required('medicalinfo.init_case', raise_exception=True)
+@permission_required('medicalinfo.read_medinfo', raise_exception=True)
 def case_init(request, ref_id):
     template_name= 'medicalinfo/medinfo_new_case_form.html'
 
@@ -152,14 +162,12 @@ def case_init(request, ref_id):
         if request.POST:
             if form1.is_valid():
                 #create new case
-                #new_case = form1.save(commit=False)
-                #new_case.medinfo = medinfo
-                #new_case.save()
-                form1.save()
-
+                new_case = form1.save(commit=False)
+                new_case.medinfo = medinfo
+                new_case.save()
 
                 messages.success(request, "You have successfully summitted a new case")
-                return HttpResponseRedirect(reverse('med-info-detail', kwargs={'ref_id':ref_id})) 
+                return HttpResponseRedirect(reverse('case-list-view', kwargs={'ref_id':ref_id})) 
             else:
                 messages.error(request, "Please correct the form")
         #messages.warning(request, "Opps, are you in the right place?")
@@ -168,6 +176,135 @@ def case_init(request, ref_id):
         return render(request, template_name, context)
     else:
         return HttpResponseForbidden()
+
+#
+#Display all cases in a table
+#
+@permission_required('medicalinfo.read_medinfo', raise_exception=True)
+def case_list_view(request, ref_id):
+    template_name= 'medicalinfo/medinfo_case_list_view.html'
+
+    #ensure patient cannot init other patients med-info
+    if medinfo_security_check(request.user, ref_id):
+
+        patient = trace_user(ref_id).patient
+        #get patient medicalinfo instance
+        medinfo = patient.medicalinformation
+
+        cases = medinfo.case_set.all()
+
+        context = {'cases':cases, 'ref_id':ref_id, 'patient':patient.patient.username}
+        return render(request, template_name, context)
+    else:
+        return HttpResponseForbidden()
+
+#
+#Case detail
+#
+@permission_required('medicalinfo.read_medinfo', raise_exception=True)
+def case_detail_view(request, ref_id, case_id):
+    template_name= 'medicalinfo/medinfo_case_detail_view_form.html'
+
+    #ensure patient cannot init other patients med-info
+    if medinfo_security_check(request.user, ref_id):
+
+        patient = trace_user(ref_id).patient
+        #get patient medicalinfo instance
+        medinfo = patient.medicalinformation
+
+        case = medinfo.case_set.get(id=case_id)
+
+        form1 = CaseForm(request.POST or None, instance=case)
+
+        prescriptions = case.prescription_set.all()
+
+
+        context = {'form1':form1, 'view_only':True, 
+            'ref_id':ref_id, 'case_id':case_id,
+            'patient':patient.patient.username,
+            'prescriptions':prescriptions,
+            }
+
+        return render(request, template_name, context)
+
+    else:
+        return HttpResponseForbidden()
+
+#
+#Case update
+#
+@permission_required('medicalinfo.change_medicalinformation', raise_exception=True)
+def case_update(request, ref_id, case_id):
+    template_name= 'medicalinfo/medinfo_case_update_form.html'
+
+    #ensure patient cannot init other patients med-info
+    if medinfo_security_check(request.user, ref_id):
+
+        patient = trace_user(ref_id).patient
+        #get patient medicalinfo instance
+        medinfo = patient.medicalinformation
+
+        case = medinfo.case_set.get(id=case_id)
+
+        prescriptions = case.prescription_set.all()
+
+        form1 = CaseForm(request.POST or None, instance=case)
+
+        if request.POST:
+            if form1.is_valid():
+                updated_case = form1.save(commit=False)
+                updated_case.last_action = 'D'
+                updated_case.save()
+                messages.success(request, "You have successfully updated") 
+                return HttpResponseRedirect(reverse('case-detail-view', kwargs={'ref_id':ref_id, 'case_id':case_id})) 
+            else:
+                messages.error(request, "Please correct the form")           
+
+        context = {'form1':form1, 'prescriptions':prescriptions}
+        return render(request, template_name, context)
+    else:
+        return HttpResponseForbidden()
+
+
+#
+#New Precription
+#
+@permission_required('medicalinfo.change_medicalinformation', raise_exception=True)
+def case_update_prescription(request, ref_id, case_id):
+    template_name= 'medicalinfo/medinfo_case_update_prescription_form.html'
+
+    #ensure patient cannot init other patients med-info
+    if medinfo_security_check(request.user, ref_id):
+
+        patient = trace_user(ref_id).patient
+        #get patient medicalinfo instance
+        medinfo = patient.medicalinformation
+
+        case = medinfo.case_set.get(id=case_id)
+        prescriptions = case.prescription_set.all()
+
+        form1 = CaseForm(request.POST or None, instance=case)
+        form2 = PrescriptionForm(request.POST or None)
+
+        if request.POST:
+            if form2.is_valid():
+                new_pres = form2.save(commit=False)
+                new_pres.case = case
+                new_pres.save()
+                #updated last action on case
+                case.last_action = 'P'
+                case.save()
+                messages.success(request, "You have successfully updated a prescription") 
+                return HttpResponseRedirect(reverse('case-detail-view', kwargs={'ref_id':ref_id, 'case_id':case_id})) 
+            else:
+                messages.error(request, "Please correct the form")           
+
+        context = {'form1':form1, 'form2':form2, 'prescriptions':prescriptions}
+        return render(request, template_name, context)
+    else:
+        return HttpResponseForbidden()
+
+
 
 
 #
