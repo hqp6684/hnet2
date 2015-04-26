@@ -23,27 +23,6 @@ from django.shortcuts import get_object_or_404
 
 from postman.api import pm_write
 
-#System notification
-#** Need an user named 'system'
-def system_notify(recipient, code):
-    #
-    try:
-        sender = User.objects.get(username='system')
-
-        if code=='new_user':
-            subject = 'New user confirmation'
-            body = 'Congratulation. You have successfully registered as one of Healthnet user'
-        elif code=='admission':
-            subject = 'Admission confirmation'
-            body = 'You have been admitted as one of HealthNet patient'
-        elif code=='discharge':
-            subject = 'Discharge confirmation'
-            body = 'You have been discharged.'
-
-        pm_write(sender, recipient, subject=subject, body=body)
-        #except sender not exist
-    except:
-        pass
 
 
 def account_message(request):
@@ -99,6 +78,43 @@ def gain_perms(user):
 
 
 
+#System notification
+#** Need an user named 'system'
+def account_system_notify(recipient, code):
+    #
+    try:
+        sender = User.objects.get(username='system')
+        #addon
+        #also send to patient's doc and nurse
+        doc = recipient.patient.primary_doctor.doctor.employee
+        nurse = recipient.patient.primary_nurse.nurse.employee
+
+        if code=='new_user':
+            subject = 'New user confirmation'
+            body = 'Congratulation. You have successfully registered as one of Healthnet user.\nWhat next?\nPlease contact us to get enrolled as one of our patient'
+            pm_write(sender, recipient, subject=subject, body=body)
+
+        elif code=='admission':
+            subject = 'Admission confirmation'
+            body = 'User: %s have been admitted with\nDoctor: %s\nNurse: %s' %(recipient.username,doc.username,nurse.username)
+
+            pm_write(sender, recipient, subject=subject, body=body)
+            pm_write(sender, doc, subject=subject, body=body)
+            pm_write(sender, nurse, subject=subject, body=body)
+
+        elif code=='discharge':
+            subject = 'Discharge confirmation'
+            body = 'Patient: %s has been discharged by Doctor: %s'%(recipient.username,doc.username)
+
+            pm_write(sender, recipient, subject=subject, body=body)
+            pm_write(sender, doc, subject=subject, body=body)
+            pm_write(sender, nurse, subject=subject, body=body)
+
+        #except sender not exist
+    except:
+        pass
+
+
 
 # Create your views here.
 def index(request):
@@ -134,7 +150,7 @@ def patient_register(request):
 
             if form1.is_valid() and form2.is_valid():
                 user = form1.save()
-                system_notify(user,code='new_user')
+
                 profile = form2.save(commit=False)
                 profile.user = user
                 profile.ref_id = get_ref_id()
@@ -146,6 +162,7 @@ def patient_register(request):
                 med_info = MedicalInformation.create(new_patient)
                 med_info.save()
                 messages.success(request, 'Thank you for joining us')
+                account_system_notify(user,code='new_user')
                                 #return to home 
                 return redirect('/account/message')
             else:
@@ -412,7 +429,7 @@ def patient_activate(request, ref_id):
             messages.success(request,"You have admited patient %s" %p.username)
             #now give patient permission to init/read med-info
             gain_perms(p)
-            system_notify(p, code='admission')
+            account_system_notify(p, code='admission')
 
             return redirect('/account/message')
         else:
@@ -444,7 +461,7 @@ def patient_discharge(request, ref_id):
             patient.last_action = 'D' 
             patient.save()
             #notify patient
-            system_notify(p, code='discharge')
+            account_system_notify(p, code='discharge')
             #update patient count for assigned doctor and nurses
             doctors = patient.doctors.all()
             for doc in doctors:

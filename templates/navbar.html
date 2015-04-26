@@ -100,7 +100,7 @@
       </form>
       <ul class="nav navbar-nav navbar-right">
         <li>
-          <a href="{% url 'postman_inbox' %}">&raquo;&nbsp;Message
+          <a href="{% url 'postman_inbox' %}">&raquo;&nbsp;Messages
           {%if user.userprofile.get_unread_count %}
                     <span class="badge">{{ user.userprofile.get_unread_count}}</span>
           {%endif%}
