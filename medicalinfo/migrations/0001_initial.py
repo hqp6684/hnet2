@@ -15,7 +15,6 @@ class Migration(SchemaMigration):
             ('fName', self.gf('django.db.models.fields.CharField')(max_length=40)),
             ('lName', self.gf('django.db.models.fields.CharField')(max_length=40)),
             ('mName', self.gf('django.db.models.fields.CharField')(max_length=40, blank=True)),
-            ('problem', self.gf('django.db.models.fields.CharField')(max_length=200)),
         ))
         db.send_create_signal(u'medicalinfo', ['MedicalInformation'])
 
@@ -71,10 +70,23 @@ class Migration(SchemaMigration):
             ('problem', self.gf('django.db.models.fields.CharField')(max_length=200)),
             ('diagnosis', self.gf('django.db.models.fields.CharField')(default='None', max_length=200)),
             ('test_result', self.gf('django.db.models.fields.CharField')(default='None', max_length=200)),
+            ('last_action', self.gf('django.db.models.fields.CharField')(default='N', max_length=1)),
             ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
         db.send_create_signal(u'medicalinfo', ['Case'])
+
+        # Adding model 'Prescription'
+        db.create_table(u'medicalinfo_prescription', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('case', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['medicalinfo.Case'])),
+            ('drug', self.gf('django.db.models.fields.CharField')(max_length=200)),
+            ('instruction', self.gf('django.db.models.fields.CharField')(max_length=200)),
+            ('refill', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=0)),
+            ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
+            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+        ))
+        db.send_create_signal(u'medicalinfo', ['Prescription'])
 
 
     def backwards(self, orm):
@@ -95,6 +107,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Case'
         db.delete_table(u'medicalinfo_case')
+
+        # Deleting model 'Prescription'
+        db.delete_table(u'medicalinfo_prescription')
 
 
     models = {
@@ -149,6 +164,7 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'diagnosis': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '200'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_action': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
             'medinfo': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.MedicalInformation']"}),
             'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
@@ -187,8 +203,17 @@ class Migration(SchemaMigration):
             'initialized': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'lName': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
             'mName': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
-            'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Patient']", 'unique': 'True', 'primary_key': 'True'}),
-            'problem': ('django.db.models.fields.CharField', [], {'max_length': '200'})
+            'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Patient']", 'unique': 'True', 'primary_key': 'True'})
+        },
+        u'medicalinfo.prescription': {
+            'Meta': {'object_name': 'Prescription'},
+            'case': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['medicalinfo.Case']"}),
+            'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'drug': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'instruction': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'refill': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '0'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'users.doctor': {
             'Meta': {'object_name': 'Doctor'},
@@ -214,10 +239,12 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Patient'},
             'doctors': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Doctor']", 'null': 'True', 'symmetrical': 'False'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'last_action': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
             'nurses': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['users.Nurse']", 'null': 'True', 'symmetrical': 'False'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'}),
             'primary_doctor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_doctor'", 'null': 'True', 'to': u"orm['users.Doctor']"}),
-            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'null': 'True', 'to': u"orm['users.Nurse']"})
+            'primary_nurse': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'primary_nurse'", 'null': 'True', 'to': u"orm['users.Nurse']"}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         }
     }
 

@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from localflavor.us.models import USStateField, USZipCodeField, USSocialSecurityNumberField, PhoneNumberField
 from django.core.urlresolvers import reverse
 from simple_history.models import HistoricalRecords
+from postman.models import Message
+
 
 # Create your models here.
 
@@ -29,6 +31,9 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    def get_unread_count(self):
+        unread_count = Message.objects.inbox_unread_count(self.user)
+        return unread_count
 
     '''return url for user object'''
     def get_absolute_url(self):
@@ -154,6 +159,11 @@ class Patient(models.Model):
         
     def __str__(self):
         return self.patient.username
+    def get_write_to_doc_url(self):
+        return reverse('postman_write', kwargs={'recipients': self.primary_doctor.doctor.employee.username})
+    def get_write_to_nurse_url(self):
+        return reverse('postman_write', kwargs={'recipients': self.primary_nurse.nurse.employee.username})
+
 
 
 

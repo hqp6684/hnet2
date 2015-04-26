@@ -13,6 +13,11 @@
     <div class="col-md-6">
     <a class="btn btn-default" href="{%url 'case-list-view' ref_id=ref_id%}">Cases</a>
     <a class="btn btn-default" href="{%url 'case-init' ref_id=ref_id%}">New Case Inquiry</a>
+ {%if user.patient.is_active %}
+ <li><a href="{{user.patient.get_write_to_doc_url}}">&raquo;&nbsp;Write to Doctor</a></li>
+ <li><a href="{{user.patient.get_write_to_nurse_url}}">&raquo;&nbsp;Write to Nurse</a></li>
+
+ {%endif%}
 
 
     </div>

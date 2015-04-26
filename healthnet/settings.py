@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     #for databse migration
     'south',
     #for shell_plus (automatically import all models)
-    #'django_extensions',
+    'django_extensions',
 
     'users',
     'accounts',

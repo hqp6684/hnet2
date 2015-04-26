@@ -24,7 +24,7 @@ class MedicalInformation(models.Model):
 	lName = models.CharField(max_length=40, verbose_name ="Last Name",)
 	mName = models.CharField(max_length=40, verbose_name ="Middle Name", blank=True )
 
-	problem = models.CharField(max_length=200, verbose_name="Your concerns/problems")
+	#problem = models.CharField(max_length=200, verbose_name="Your concerns/problems")
 	#dOB = models.DateField(null=True)
 	#current_problem = models.CharField(max_length=200, blank=True)
 

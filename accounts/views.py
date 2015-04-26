@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib.auth.models import User
 from users.models import UserProfile, Employee, Doctor, Nurse, Receptionist, Patient
 from medicalinfo.models import MedicalInformation
 from django.contrib import messages
@@ -20,6 +21,29 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
 
+from postman.api import pm_write
+
+#System notification
+#** Need an user named 'system'
+def system_notify(recipient, code):
+    #
+    try:
+        sender = User.objects.get(username='system')
+
+        if code=='new_user':
+            subject = 'New user confirmation'
+            body = 'Congratulation. You have successfully registered as one of Healthnet user'
+        elif code=='admission':
+            subject = 'Admission confirmation'
+            body = 'You have been admitted as one of HealthNet patient'
+        elif code=='discharge':
+            subject = 'Discharge confirmation'
+            body = 'You have been discharged.'
+
+        pm_write(sender, recipient, subject=subject, body=body)
+        #except sender not exist
+    except:
+        pass
 
 
 def account_message(request):
@@ -110,6 +134,7 @@ def patient_register(request):
 
             if form1.is_valid() and form2.is_valid():
                 user = form1.save()
+                system_notify(user,code='new_user')
                 profile = form2.save(commit=False)
                 profile.user = user
                 profile.ref_id = get_ref_id()
@@ -121,7 +146,7 @@ def patient_register(request):
                 med_info = MedicalInformation.create(new_patient)
                 med_info.save()
                 messages.success(request, 'Thank you for joining us')
-                #return to home 
+                                #return to home 
                 return redirect('/account/message')
             else:
                 messages.error(request, 'Please correct all the fields with error')
@@ -337,7 +362,10 @@ def all_my_patient_list_view(request):
     context = {'patients':patients}
 
     return render(request, template_name, context)
+
+
     
+
 
 #Patient admission
 #Activate patient and set new permissions for patients
@@ -347,6 +375,7 @@ def patient_activate(request, ref_id):
     template_name = 'accounts/account_patient_activate_form.html'
     #find patient by ref id
     p = trace_user(ref_id)
+    
     #get patient instance
     patient = p.patient
 
@@ -383,6 +412,8 @@ def patient_activate(request, ref_id):
             messages.success(request,"You have admited patient %s" %p.username)
             #now give patient permission to init/read med-info
             gain_perms(p)
+            system_notify(p, code='admission')
+
             return redirect('/account/message')
         else:
             messages.error(request, 'Please correct the fields with error')
@@ -412,6 +443,8 @@ def patient_discharge(request, ref_id):
             patient.is_active = False
             patient.last_action = 'D' 
             patient.save()
+            #notify patient
+            system_notify(p, code='discharge')
             #update patient count for assigned doctor and nurses
             doctors = patient.doctors.all()
             for doc in doctors:

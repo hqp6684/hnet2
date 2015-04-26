@@ -6,7 +6,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 
 from django.contrib.auth import authenticate, get_user_model
 from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField  
-
+import datetime
 
 class UserCreationForm(forms.ModelForm):
 

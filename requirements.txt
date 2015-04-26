@@ -1,0 +1,26 @@
+Contact us:
+healthnetsupport* change in healthnet.views
+
+notification
+system account = 'system'
+
+Log 4/26/2015
+Contact Us
+	Provide a template for PM, Need a support account
+	*Need change in healthnet.views
+Direct PM 
+	Provide links for patient to direct pm his/her doc and nurse
+
+Notification:
+	*need a system account "system"
+	*Need change in account and medicalinfo views
+
+	New user 
+	Admission
+	Discharge
+	New Case
+	Case update
+	Case pres update
+	
+
+	
