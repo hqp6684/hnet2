@@ -345,31 +345,4 @@ def case_update_prescription(request, ref_id, case_id):
 
 
 
-#
-#Initilize a new med-info for a patient.
-#
-@permission_required('medicalinfo.init_case', raise_exception=True)
-def diagnosis_init(request, ref_id):
-    template_name= 'medicalinfo/medinfo_diagnosis_init_form.html'
 
-    #ensure patient cannot init other patients med-info
-    if medinfo_security_check(request.user, ref_id):
-
-        patient = trace_user(ref_id).patient
-        #get patient medicalinfo instance
-
-        form1 = CaseInitForm(request.POST or None)
-   
-        if request.POST:
-            if form1.is_valid():
-
-                messages.success(request, "You have successfully updated your med-info")
-                return HttpResponseRedirect(reverse('med-info-detail', kwargs={'ref_id':ref_id})) 
-            else:
-                messages.error(request, "Please correct the form")
-        #messages.warning(request, "Opps, are you in the right place?")
-
-        context = {'form1':form1}
-        return render(request, template_name, context)
-    else:
-        raise PermissionDenied
