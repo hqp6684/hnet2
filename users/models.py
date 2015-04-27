@@ -8,6 +8,11 @@ from postman.models import Message
 
 # Create your models here.
 
+LOCATION_CHOICES = (
+    ('01', 'ROCHESTER'),
+    ('02', 'BUFFALO'),
+    ('03', 'NEW YORK CITY'),
+    )
 
 class UserProfile(models.Model):
     #history = HistoricalRecords()
@@ -27,6 +32,8 @@ class UserProfile(models.Model):
     email = models.EmailField(max_length=75, verbose_name ="Email", unique=True)
     dateJoin = models.DateField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    location = models.CharField(max_length=2, choices=LOCATION_CHOICES, default='01')
+
 
 
     def __str__(self):
@@ -45,6 +52,13 @@ class UserProfile(models.Model):
         return reverse('patient-activate', kwargs={'ref_id': self.ref_id})
     def get_discharge_url(self):
         return reverse('patient-discharge', kwargs={'ref_id': self.ref_id})
+    def get_transfer_url(self):
+        return reverse('patient-transfer', kwargs={'ref_id': self.ref_id})
+    def get_add_doctor_url(self):
+        return reverse('patient-add-doctor', kwargs={'ref_id': self.ref_id})
+       
+      
+
        
     #this is for med-info
     #get url to view user med-info
@@ -60,7 +74,9 @@ class UserProfile(models.Model):
 
 
 
-
+    #This is for staff management
+    def get_employee_url(self):
+        return reverse('employee-update', kwargs={'ref_id':self.ref_id})
 
 
 class Employee(models.Model):
@@ -79,7 +95,7 @@ class Employee(models.Model):
     def __str__(self):
         return self.employee_type + " " + self.employee.username
     def _employee_info(self):
-        info = self.employee_type + " " + self.employee.username
+        info = self.employee_type + " " + self.employee.username + " "+self.employee.userprofile.get_location_display()
         return info
 
 class Doctor(models.Model):
@@ -143,6 +159,8 @@ class Patient(models.Model):
         ('N', 'Joined'),
         ('A', 'Admitted'),
         ('D', 'Discharged'),
+        ('T', 'Transfered'),
+        ('R', 'Referred'),
         )
     last_action = models.CharField(max_length=1, choices=LAST_ACTION_CHOICES, default='N')
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -155,6 +173,7 @@ class Patient(models.Model):
             ("admit_patient", "can admit patient"),
             #to discharge patient, change is_active to false
             ("discharge_patient", "can discharge patient"),
+
         )
         
     def __str__(self):

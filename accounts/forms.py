@@ -86,7 +86,7 @@ class UserProfileForm(forms.ModelForm):
 
         fields =['fName', 'lName', 'mName', 'dOB', 'sSN',
         'phoneNumber','streetAddress','city','state',
-        'zipcode','email',]
+        'zipcode','email','location']
         widgets = {
             'fName' : forms.TextInput(attrs={'class':'form-control'}),
             'lName' : forms.TextInput(attrs={'class':'form-control'}),
@@ -125,6 +125,35 @@ class PatientActivateForm(forms.ModelForm):
         model = Patient
         exclude = ['patient', 'doctors', 'nurses', 'last_action' ]
 
+#transfer patient
+class PatientTransferForm(forms.ModelForm):
+    
+    transfer = forms.BooleanField(label=_("Check this box to transfer patient"),)
+    primary_doctor = forms.ModelChoiceField(queryset=Doctor.objects.filter(available=True),
+        label=_("Primary Doctor"),
+        widget= forms.Select(attrs={'class':'form-control'})
+        )
+    primary_nurse = forms.ModelChoiceField(queryset=Nurse.objects.filter(available=True),
+        label=_("Primary Nurse"),
+        widget= forms.Select(attrs={'class':'form-control'})
+        )
+    
+    class Meta:
+        model = Patient
+        exclude = ['is_active', 'patient', 'doctors', 'nurses', 'last_action' ]
+
+#add doctor
+class PatientAddDoctorForm(forms.ModelForm):
+    
+    doctor = forms.ModelChoiceField(queryset=Doctor.objects.filter(available=True),
+        label=_("Doctor"),
+        widget= forms.Select(attrs={'class':'form-control'})
+        )
+    add = forms.BooleanField(label=_("Check this box to refer patient to this doctor"),)
+    
+    class Meta:
+        model = Patient
+        exclude = ['is_active', 'patient', 'doctors', 'nurses', 'last_action','primary_nurse', 'primary_doctor']
 
 #activate new patient
 class PatientDischargeForm(forms.ModelForm):
@@ -138,10 +167,12 @@ class PatientDischargeForm(forms.ModelForm):
 
 
 class EmployeeCreationForm(forms.ModelForm):
+    
     class Meta:
         model = Employee
         exclude = ['employee']
         fields= ['employee_type']
+
 
 
 

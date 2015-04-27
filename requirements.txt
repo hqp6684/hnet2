@@ -21,6 +21,17 @@ Notification:
 	New Case
 	Case update
 	Case pres update
-	
+
+Transfer patient
+Referral
 
 	
+
+Export case detail as pdf
+
+Log 4/27/2015
+
+Staff management
+Display location with username
+
+

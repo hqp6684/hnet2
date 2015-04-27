@@ -1,0 +1,48 @@
+
+{%extends 'base.html' %}
+
+{% block content %}
+
+
+<div class="container">
+<div><h1>Employee List</h1></div>
+<!--a class="btn btn-default" href="{% url 'my-patient-list-archive' %} ">All</a-->
+
+<table class="table table-hover">
+<thead>
+	<tr>
+		<th>Employee Type</th>
+		<th>Username</th>
+		<th>Location</th>
+		<th>Last Action</th>
+		
+	</tr>
+</thead>
+<tbody>
+	{%for e in employees%}
+	<tr>
+		<th> {{e.get_employee_type_display}}</th>
+		<th> {{e.employee.username}}</th>
+		<th> {{e.employee.userprofile.location}} {{e.employee.userprofile.get_location_display}}
+		<th> {{e.history.most_recent}}
+
+		<th>
+			<div class="dropdown">
+			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+			    Actions
+			    <span class="caret"></span>
+			  </button>
+			  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{e.employee.userprofile.get_employee_url}}">Update</a></li>
+
+			  </ul>
+			</div>
+		</th>
+	</tr>
+{%endfor%}
+
+</tbody>
+</table>
+
+</div>
+{% endblock %}

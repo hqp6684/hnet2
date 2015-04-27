@@ -34,6 +34,9 @@
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_case_list_url}}">View Cases</a></li>
 
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_discharge_url}}">Discharge</a></li>
+			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_transfer_url}}">Transfer</a></li>
+			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_add_doctor_url}}">Add doctor</a></li>
+
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'postman_write' recipients=patient %}">Private Message</a></li>
 
 			    {%endif%}

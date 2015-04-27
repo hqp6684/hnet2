@@ -57,6 +57,7 @@
         {% if user.is_superuser %}
         <li class="active"><a href="/admin">Admin <span class="sr-only">(current)</span></a></li>
         <li><a href="{%url 'employee-register' %}">Staff Registration</a></li>
+        <li><a href="{%url 'employee-list' %}">Staff Management</a></li>
 
         {%endif%}
 
@@ -100,8 +101,10 @@
       </form>
       <ul class="nav navbar-nav navbar-right">
         <li>
-          <a href="{% url 'postman_inbox' %}">&raquo;&nbsp;Messages
-          {%if user.userprofile.get_unread_count %}
+          <a href="{% url 'postman_inbox' %}">
+          <span class="gglyphicon glyphicon-envelope" aria-hidden="true"></span>
+Messages 
+                    {%if user.userprofile.get_unread_count %}
                     <span class="badge">{{ user.userprofile.get_unread_count}}</span>
           {%endif%}
           </a>
@@ -111,7 +114,6 @@
           <ul class="dropdown-menu" role="menu">
             <li><a href="{{ user.userprofile.get_absolute_url }}">My Profile</a></li>
             <li class="divider"></li>
-            <li><a href="#">Separated link</a></li>
             <li class="divider"></li>
             <li><a href="#">One more separated link</a></li>
           </ul>

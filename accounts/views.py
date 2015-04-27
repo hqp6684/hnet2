@@ -12,7 +12,7 @@ import datetime
 
 from .forms import (UserCreationForm, UserProfileForm, 
     NewPatientForm, AuthenticationForm, EmployeeCreationForm,
-    PatientActivateForm, PatientDischargeForm,
+    PatientActivateForm, PatientDischargeForm, PatientTransferForm,PatientAddDoctorForm,
 
 )
 
@@ -20,6 +20,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+
 
 from postman.api import pm_write
 
@@ -80,39 +82,53 @@ def gain_perms(user):
 
 #System notification
 #** Need an user named 'system'
-def account_system_notify(recipient, code):
+def account_system_notify(recipient, code, plus):
     #
-    try:
-        sender = User.objects.get(username='system')
-        #addon
-        #also send to patient's doc and nurse
-        doc = recipient.patient.primary_doctor.doctor.employee
-        nurse = recipient.patient.primary_nurse.nurse.employee
+    #try:
+    sender = User.objects.get(username='system')
+    #addon
+    #also send to patient's doc and nurse
+    doc = recipient.patient.primary_doctor.doctor.employee
+    nurse = recipient.patient.primary_nurse.nurse.employee
 
-        if code=='new_user':
-            subject = 'New user confirmation'
-            body = 'Congratulation. You have successfully registered as one of Healthnet user.\nWhat next?\nPlease contact us to get enrolled as one of our patient'
-            pm_write(sender, recipient, subject=subject, body=body)
+    if code=='new_user':
+        subject = 'New user confirmation'
+        body = 'Congratulation. You have successfully registered as one of Healthnet user.\nWhat next?\nPlease contact us to get enrolled as one of our patient'
+        pm_write(sender, recipient, subject=subject, body=body)
 
-        elif code=='admission':
-            subject = 'Admission confirmation'
-            body = 'User: %s have been admitted with\nDoctor: %s\nNurse: %s' %(recipient.username,doc.username,nurse.username)
+    elif code=='admission':
+        subject = 'Admission confirmation'
+        body = 'User: %s have been admitted with\nDoctor: %s\nNurse: %s' %(recipient.username,doc.username,nurse.username)
 
-            pm_write(sender, recipient, subject=subject, body=body)
-            pm_write(sender, doc, subject=subject, body=body)
-            pm_write(sender, nurse, subject=subject, body=body)
+        pm_write(sender, recipient, subject=subject, body=body)
+        pm_write(sender, doc, subject=subject, body=body)
+        pm_write(sender, nurse, subject=subject, body=body)
 
-        elif code=='discharge':
-            subject = 'Discharge confirmation'
-            body = 'Patient: %s has been discharged by Doctor: %s'%(recipient.username,doc.username)
+    elif code=='discharge':
+        subject = 'Discharge confirmation'
+        body = 'Patient: %s has been discharged by Doctor: %s'%(recipient.username,doc.username)
 
-            pm_write(sender, recipient, subject=subject, body=body)
-            pm_write(sender, doc, subject=subject, body=body)
-            pm_write(sender, nurse, subject=subject, body=body)
+        pm_write(sender, recipient, subject=subject, body=body)
+        pm_write(sender, doc, subject=subject, body=body)
+        pm_write(sender, nurse, subject=subject, body=body)
+
+    elif code=='transfer_to':
+        subject = 'Transfer confirmation'
+        body = 'Patient: %s has been transfered to Doctor: %s'%(recipient.username,doc.username)
+        pm_write(sender, recipient, subject=subject, body=body)
+        pm_write(sender, doc, subject=subject, body=body)
+        pm_write(sender, nurse, subject=subject, body=body)
+
+    elif code=='refer':
+        subject = 'Referral Confirmation'
+        body = 'Patient: %s has been refered to Doctor: %s by Doctor: %s'%(recipient.username, plus.username, doc.username)
+        pm_write(sender, recipient, subject=subject, body=body)
+        pm_write(sender, doc, subject=subject, body=body)
+        pm_write(sender, nurse, subject=subject, body=body)
 
         #except sender not exist
-    except:
-        pass
+    #except:
+     #   pass
 
 
 
@@ -162,7 +178,7 @@ def patient_register(request):
                 med_info = MedicalInformation.create(new_patient)
                 med_info.save()
                 messages.success(request, 'Thank you for joining us')
-                account_system_notify(user,code='new_user')
+                account_system_notify(user,code='new_user', plus = None)
                                 #return to home 
                 return redirect('/account/message')
             else:
@@ -323,6 +339,34 @@ def userprofile_update(request, ref_id):
 
 
 
+#==================================================================================
+#==================================================================================
+#           EMPLOYEE Management
+#==================================================================================
+#==================================================================================
+def employee_list_view(request):
+    template_name = 'accounts/account_employee_list.html'
+
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    employees = Employee.objects.all()
+    context={'employees':employees}
+
+    return render(request, template_name, context)
+
+
+def employee_update_view(request, ref_id):
+    template_name = 'accounts/account_employee_form.html'
+    context = {}
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    user = trace_user(ref_id)
+
+    return render(request, template_name, context)
+
+
+
 
 #==================================================================================
 #==================================================================================
@@ -429,7 +473,7 @@ def patient_activate(request, ref_id):
             messages.success(request,"You have admited patient %s" %p.username)
             #now give patient permission to init/read med-info
             gain_perms(p)
-            account_system_notify(p, code='admission')
+            account_system_notify(p, code='admission', plus=None)
 
             return redirect('/account/message')
         else:
@@ -461,7 +505,7 @@ def patient_discharge(request, ref_id):
             patient.last_action = 'D' 
             patient.save()
             #notify patient
-            account_system_notify(p, code='discharge')
+            account_system_notify(p, code='discharge', plus=None)
             #update patient count for assigned doctor and nurses
             doctors = patient.doctors.all()
             for doc in doctors:
@@ -489,4 +533,125 @@ def patient_discharge(request, ref_id):
 
     context = {'form':form, 'patient_username':p.username}
     return render(request, template_name, context)
+
+
+#Patient transfer
+@permission_required('users.discharge_patient', raise_exception=True)
+#ref_id to get patient
+def patient_transfer(request, ref_id):
+    template_name = 'accounts/account_patient_transfer_form.html'
+    #find patient by ref id
+    p = trace_user(ref_id)
+    #get patient instance
+    patient = p.patient
+    current_doc = patient.primary_doctor
+    current_nurse = patient.primary_nurse
+    
+    form = PatientTransferForm(request.POST or None, instance=patient)
+    if request.POST:
+        if form.is_valid():
+
+            this_patient = form.save(commit=False)
+            primary_doc = form.cleaned_data['primary_doctor']
+            primary_nurse = form.cleaned_data['primary_nurse']
+
+            #update current doc and nurse
+
+            current_doc.current_patient_count -= 1
+            if current_doc.current_patient_count < current_doc.max_patients:
+                current_doc.available = True
+            current_doc.save()
+            #current_nurse = this_patient.primary_nurse
+            current_nurse.current_patient_count -= 1
+            if current_nurse.current_patient_count > current_nurse.max_patients:
+                current_nurse.available = False
+            current_nurse.save()
+
+            #remove from patient's doc/nurse list
+            this_patient.doctors.remove(current_doc)
+            this_patient.nurses.remove(current_nurse)
+            #account_system_notify(p, code='transfer_from', current_doc=current_doc, current_nurse=current_nurse)
+ 
+            #this_patient.save()
+
+            #switch to new doc/nurse
+
+            #update patient count for assigned doctor and nurses
+            primary_doc.current_patient_count += 1
+            if primary_doc.current_patient_count >= primary_doc.max_patients:
+                primary_doc.available = False
+
+            primary_doc.save()
+
+            primary_nurse.current_patient_count += 1
+            if primary_nurse.current_patient_count >= primary_nurse.max_patients:
+                primary_nurse.available = False
+            primary_nurse.save()
+
+            this_patient.doctors.add(primary_doc)
+            this_patient.nurses.add(primary_nurse)
+
+            this_patient.last_action = 'T'
+ 
+            this_patient.save()
+
+            #notify patient's new doc/nurse
+            account_system_notify(this_patient.patient, code='transfer_to', plus=None)
+
+            messages.success(request,"You have successfully transfered patient %s" %p.username)
+            #now give patient permission to init/read med-info
+            return redirect('/account/message')
+        else:
+            messages.error(request, 'Please correct the fields with error')
+
+    context = {'form':form, 'patient_username':p.username}
+    return render(request, template_name, context)
+
+
+#Patient referral
+@permission_required('users.discharge_patient', raise_exception=True)
+#ref_id to get patient
+def patient_add_doctor(request, ref_id):
+    template_name = 'accounts/account_patient_add_doctor_form.html'
+    #find patient by ref id
+    p = trace_user(ref_id)
+    #get patient instance
+    patient = p.patient
+
+    
+    form = PatientAddDoctorForm(request.POST or None, instance=patient)
+    if request.POST:
+        if form.is_valid():
+
+            this_patient = form.save(commit=False)
+            new_doc = form.cleaned_data['doctor']
+
+            #update patient count for assigned doctor and nurses
+            new_doc.current_patient_count += 1
+            if new_doc.current_patient_count >= new_doc.max_patients:
+                new_doc.available = False
+
+            new_doc.save()
+
+            this_patient.doctors.add(new_doc)
+
+            this_patient.last_action = 'R'
+ 
+            this_patient.save()
+
+            #notify patient's new doc/nurse
+            account_system_notify(this_patient.patient, code='refer', plus=new_doc.doctor.employee)
+
+            messages.success(request,"You have successfully referred patient %s" %p.username)
+            #now give patient permission to init/read med-info
+            return redirect('/account/message')
+        else:
+            messages.error(request, 'Please correct the fields with error')
+
+    context = {'form':form, 'patient_username':p.username}
+    return render(request, template_name, context)
+
+
+
+
 

@@ -45,9 +45,24 @@
 
       <script src="{%static 'js/bootstrap-datepicker.js' %}"></script>
       <script src="{%static 'js/bootstrap-datetimepicker.js' %}"></script>
-
+      <script src="{%static 'js/jspdf.min.js' %}"></script>
 
       <script>
+  var doc = new jsPDF();
+  var specialElementHandlers = {
+      '#editor': function (element, renderer) {
+          return true;
+      }
+  };
+
+  $('#cmd').click(function () {
+      doc.fromHTML($('#content').html(), 15, 15, {
+          'width': 170,
+              'elementHandlers': specialElementHandlers
+      });
+      doc.save('sample-file.pdf');
+  });
+
         $(function(){
           $('.datepicker').datepicker();
           $('#datetimepicker').datetimepicker();
@@ -57,6 +72,8 @@
           {%endif%}
 
         })
+
+        
       </script>
 
   <!-- YYYY-mm-dd hh:ii -->

@@ -261,7 +261,7 @@ def case_detail_view(request, ref_id, case_id):
         context = {'form1':form1, 'view_only':True, 
             'ref_id':ref_id, 'case_id':case_id,
             'patient':patient.patient.username,
-            'prescriptions':prescriptions,
+            'prescriptions':prescriptions, 'case':case
             }
 
         return render(request, template_name, context)
