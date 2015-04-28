@@ -7,11 +7,12 @@
 <form action="" method="POST">{%csrf_token%}
 
 	<div class="row">
+<div class="page-header">
+  <h1>Employee Information <small></small></h1>
+</div>
+
 	<div class="col-md-8 col-md-offset-2">
-		<h2>Employee Information</h2>
-		<hr>
-		<br>
-		<h3>Username: {{username}}</h3>
+		<h4>Employee Username: {{username}}</h4>
 		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 		  <div class="panel panel-default">
 		    <div class="panel-heading" role="tab" id="headingOne">

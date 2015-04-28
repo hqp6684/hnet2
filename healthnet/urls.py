@@ -20,6 +20,7 @@ urlpatterns = patterns('',
 
     
     url(r'^contactus/$', 'healthnet.views.contactus', name='contactus'),
+    url(r'^statistic/$', 'healthnet.views.statistic', name='statistic-home'),
 
 	url(r'^$', 'healthnet.views.home', name='home'),
 

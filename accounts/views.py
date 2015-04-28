@@ -355,7 +355,7 @@ def employee_list_view(request):
         raise PermissionDenied
 
     employee_list = Employee.objects.all()
-    paginator = Paginator(employee_list, 10)
+    paginator = Paginator(employee_list, 5)
     page = request.GET.get('page')
     try:
         employees = paginator.page(page)

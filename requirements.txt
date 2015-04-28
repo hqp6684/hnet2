@@ -41,6 +41,7 @@ Dumpdata / loaddata
 Consistent with page header, forms, buttons
 Paginator - inactive patients list, employees list view, case list view, 
 
+Statistic - Users - Insurance
 
 
 
