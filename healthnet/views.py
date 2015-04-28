@@ -25,6 +25,6 @@ def index(request, template_name='index.html'):
 
 def contactus(request, template_name='contactus.html'):
 	#set support = support username
-	support_username = 'admin'
+	support_username = 'HN_support'
 	context = {'support':support_username}
 	return render(request, template_name, context)

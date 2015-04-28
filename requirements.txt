@@ -35,3 +35,12 @@ Staff management
 Display location with username
 
 
+Log 4/28
+Fix users/med template
+Dumpdata / loaddata
+Consistent with page header, forms, buttons
+Paginator - inactive patients list, employees list view, case list view, 
+
+
+
+

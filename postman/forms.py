@@ -38,7 +38,7 @@ class BaseWriteForm(forms.ModelForm):
             # the 'width' of the body quote formatter.
             'body': forms.Textarea(attrs={'cols': WRAP_WIDTH, 'rows': 12}),
         }
-
+#<textarea class="form-control" rows="3"></textarea>
     error_css_class = 'error'
     required_css_class = 'required'
 

@@ -65,7 +65,7 @@
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">My Med-info<span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="{{user.userprofile.get_medinfo_url}}">My Medical Info</a></li>
+            <li><a href="{{user.userprofile.get_medinfo_url}}">My Medical Information</a></li>
             <li class="divider"></li>
             <li><a href="{{user.userprofile.get_case_list_url}}">My Cases</a></li>
           </ul>
@@ -91,7 +91,6 @@
 
         {%endif%}
 
-        <li><a href="#">Link</a></li>
       </ul>
       <form class="navbar-form navbar-left" role="search">
         <div class="form-group">
@@ -102,7 +101,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
           <a href="{% url 'postman_inbox' %}">
-          <span class="gglyphicon glyphicon-envelope" aria-hidden="true"></span>
+          <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
 Messages 
                     {%if user.userprofile.get_unread_count %}
                     <span class="badge">{{ user.userprofile.get_unread_count}}</span>
@@ -114,8 +113,6 @@ Messages
           <ul class="dropdown-menu" role="menu">
             <li><a href="{{ user.userprofile.get_absolute_url }}">My Profile</a></li>
             <li class="divider"></li>
-            <li class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
           </ul>
         </li>
 

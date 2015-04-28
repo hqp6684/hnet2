@@ -17,6 +17,7 @@ from medicalinfo.forms import (MedinfoInitForm,
 )
 from django.core.exceptions import PermissionDenied
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from postman.api import pm_write
 
@@ -143,7 +144,7 @@ def medinfo_init(request, ref_id):
             if form1.is_valid() and form2.is_valid() and form3.is_valid() and form4.is_valid() and form5.is_valid():
                 medinfo = form1.save(commit=False)
                 chronical_med_problems = form2.save(commit=False)
-                chronical_med_problems.medinfo = medinfo
+                chronical_med_problems.medinfo = medinfo 
 
                 emergency_contact = form3.save(commit=False)
                 emergency_contact.patient = patient
@@ -206,13 +207,13 @@ def case_init(request, ref_id):
                 recipient = trace_user(ref_id)
                 medical_system_notify(recipient, code='new_case', case=new_case.problem)
 
-                messages.success(request, "You have successfully summitted a new case")
+                messages.success(request, "You have successfully submitted a new case")
                 return HttpResponseRedirect(reverse('case-list-view', kwargs={'ref_id':ref_id})) 
             else:
                 messages.error(request, "Please correct the form")
         #messages.warning(request, "Opps, are you in the right place?")
 
-        context = {'form1':form1}
+        context = {'form1':form1,'ref_id':ref_id}
         return render(request, template_name, context)
     else:
         raise PermissionDenied
@@ -231,12 +232,67 @@ def case_list_view(request, ref_id):
         #get patient medicalinfo instance
         medinfo = patient.medicalinformation
 
+        case_list = medinfo.case_set.all().order_by('-updated')
+        paginator = Paginator(case_list,5)
+
+        page = request.GET.get('page')
+        try:
+            cases = paginator.page(page)
+        except PageNotAnInteger:    
+            cases = paginator.page(1)
+        except EmptyPage:
+            cases = paginator.page(paginator.num_pages)
+
+
+        context = {'cases':cases, 'ref_id':ref_id, 'patient':patient.patient.username}
+        return render(request, template_name, context)
+    else:
+        raise PermissionDenied
+
+
+
+
+
+def listing(request):
+    contact_list = Contacts.objects.all()
+    paginator = Paginator(contact_list, 25) # Show 25 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        contacts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        contacts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        contacts = paginator.page(paginator.num_pages)
+
+    return render_to_response('list.html', {"contacts": contacts})
+
+
+#
+#Display all cases in a table
+#
+@permission_required('medicalinfo.read_medinfo', raise_exception=True)
+def case_list_view_bk(request, ref_id):
+    template_name= 'medicalinfo/medinfo_case_list_view.html'
+
+    #ensure patient cannot init other patients med-info
+    if medinfo_security_check(request.user, ref_id):
+
+        patient = trace_user(ref_id).patient
+        #get patient medicalinfo instance
+        medinfo = patient.medicalinformation
+
         cases = medinfo.case_set.all()
 
         context = {'cases':cases, 'ref_id':ref_id, 'patient':patient.patient.username}
         return render(request, template_name, context)
     else:
         raise PermissionDenied
+
+
+
 #
 #Case detail
 #

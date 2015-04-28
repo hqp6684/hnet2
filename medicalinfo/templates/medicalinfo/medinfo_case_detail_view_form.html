@@ -6,15 +6,14 @@
 
 <div class="container">
 
-    <div>
-        <h3>Patient: {{patient}}</h3>
+<div class="page-header">
+        <h1>Case Detail <small>Patient: {{patient}}</small></h1>
  </div>
 
     <form action="" method="POST">{%csrf_token%}
       
     <div class="row">
     <div class="col-md-6">
-    <h3>Case Detail</h3>
 
         {{form1.as_p}}
     </div>
@@ -59,8 +58,11 @@
     <a class="btn btn-default" href="{%url 'case-list-view' ref_id=ref_id %}">Back</a>
    
     {%endif%}
- 
+    <a class="btn btn-default" href="{%url 'case-list-view' ref_id=ref_id%}">Back</a>
+
     </form>
+
+<div class="containter"> 
 <div id="content">
     <div class='hidden'>
         <h2>Case Report</h2>
@@ -106,11 +108,10 @@
     </div>
 
 </div> <hr>
-<button id="cmd">generate PDF</button>
-
+<button class="btn btn-primary" id="cmd"><span class="glyphicon glyphicon-floppy-disk"></span> Save as PDF</button>
+</form>
 
 </div><!-- /container -->
-
 <script>
 document.getElementById("demo").innerHTML = Date();
 </script>

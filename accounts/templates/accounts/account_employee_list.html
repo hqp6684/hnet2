@@ -5,8 +5,27 @@
 
 
 <div class="container">
-<div><h1>Employee List</h1></div>
+<div class="page-header">
+  <h1>Employee List <small></small></h1>
+</div>
 <!--a class="btn btn-default" href="{% url 'my-patient-list-archive' %} ">All</a-->
+<nav>
+<ul class="pagination">
+    <span class="step-links">
+        {% if employees.has_previous %}
+            <a href="?page={{ employees.previous_page_number }}"><span class="glyphicon glyphicon-arrow-left"></a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ employees.number }} of {{ employees.paginator.num_pages }}.
+        </span>
+
+        {% if employees.has_next %}
+            <a href="?page={{ employees.next_page_number }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
+        {% endif %}
+    </span>
+</ul>
+</nav>
 
 <table class="table table-hover">
 <thead>

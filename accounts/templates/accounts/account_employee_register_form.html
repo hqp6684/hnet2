@@ -4,11 +4,16 @@
 {%block content%}
 
 
+
+
 <div class="container">
 <div class="row">
+<div class="page-header">
+  <h1>Employee Registration <small></small></h1>
+</div>
 <div class="col-sm-offset-3">
 	<form action="" method="POST" class="form-horizontal">{%csrf_token%}
-		<h1> Account Registration</h1>
+
 
 		{%for field in form1 %}
 			<div class="form-group">

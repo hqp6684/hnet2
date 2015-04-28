@@ -5,7 +5,9 @@
 
 
 <div class="container">
-<div><h1>Active Patient List</h1></div>
+<div class="page-header">
+  <h1>Patient List <small>Active patients</small></h1>
+</div>
 <a class="btn btn-default" href="{% url 'my-patient-list-archive' %} ">All</a>
 
 <table class="table table-hover">
@@ -29,7 +31,7 @@
 			  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_medinfo_url}}" role="button">Medical Information</a></li>
 
-			    {%if user.employee.doctor %}
+			    {%if user.employee.doctor and patient.medicalinformation.initialized %}
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_case_init_url}}">New Diagnosis</a></li>
 			    <li role="presentation"><a role="menuitem" tabindex="-1" href="{{patient.patient.userprofile.get_case_list_url}}">View Cases</a></li>
 

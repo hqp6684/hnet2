@@ -4,16 +4,24 @@
 {% block content %}
 <div class="container">
 <div class="row">
-<div class="col-sm-offset-3">
-<div><h1>Patient Registration</h1></div>
-<hr>
+<div class="col-md-8 col-md-offset-2">
+<div class="page-header">
+  <h1>Patient Admission <small>Patient: {{patient_username}}</small></h1>
+</div>
 
 <form class="form-inline" method="POST" action="">{%csrf_token%}
 
-<div><h3>Patient: {{patient_username}}</h3></div>
-{{form.as_p}}
- <button type="submit" class="btn btn-primary">Sumbit</button>
+<div>
+	<h4>Location: {{location}}</h4>
 
+
+</div>
+<div>
+{{form.as_p}}
+</div>
+<br>
+ <button type="submit" class="btn btn-primary">Sumbit</button>
+ <a class="btn btn-default" href="{% url 'patient-inactive-list' %}">Back</a>
 
 </form>
 

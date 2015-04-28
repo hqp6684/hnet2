@@ -3,6 +3,10 @@
 {%block content%}
 
 <div class="container">
+<div class="page-header">
+  <h1>Contact Us <small></small></h1>
+</div>
+
 <address>
   <strong>HealthNet, Inc.</strong><br>
   795 Folsom Ave, Suite 600<br>
@@ -11,9 +15,8 @@
 </address>
 
 <address>
-  <strong>By Private Message</strong><br>
   <a class='btn btn-primary' href="{% url 'postman_write' support%}?subject=details request&body=give me details about ...">
-Contact Us
+          <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> By Private Message
 </a>
 </address>
 

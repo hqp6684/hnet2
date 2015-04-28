@@ -1,0 +1,18 @@
+[
+  {
+    "model": "django.contrib.auth",
+    "pk": 2,
+    "fields": {
+      "username": "system",
+      "password": "admin"
+    }
+  },
+  {
+    "model": "django.contrib.auth",
+    "pk": 3,
+    "fields": {
+      "username": "HealthNet_support",
+      "password": "admin"
+    }
+  }
+]

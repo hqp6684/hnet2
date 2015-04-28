@@ -5,10 +5,32 @@
 
 
 <div class="container">
-<div>
-	<h3>Patient: {{patient}}
+ <div class="page-header">
+	<h1>Cases <small>Patient: {{patient}}</small></h1>
 
 </div>
+
+
+
+<nav>
+<ul class="pagination">
+    <span class="step-links">
+        {% if cases.has_previous %}
+            <a href="?page={{ cases.previous_page_number }}"><span class="glyphicon glyphicon-arrow-left"></a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ cases.number }} of {{ cases.paginator.num_pages }}.
+        </span>
+
+        {% if cases.has_next %}
+            <a href="?page={{ cases.next_page_number }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
+        {% endif %}
+    </span>
+</ul>
+
+</nav>
+
 
 <table class="table">
 <thead>
@@ -29,6 +51,8 @@
 
 </tbody>
 </table>
+    <a class="btn btn-primary" href="{%url 'case-init' ref_id=ref_id%}">New Case Inquiry</a>
+    
 <p class="help-block">*Case Status: N=New, A=Active, C=Closed</p>
 </div>
 {% endblock %}

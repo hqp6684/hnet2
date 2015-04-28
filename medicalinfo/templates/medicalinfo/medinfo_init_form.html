@@ -2,24 +2,32 @@
 
 {% block content %}
 <div class="container">
+<div class="page-header">
+  <h1>Medical Information Initialization</small></small></h1>
+</div>
 
     <form action="" method="POST">{%csrf_token%}
       
-    <h2>Medical Information Initialization</h2>
-    <div class="row">
+     <div class="row">
     <div class="col-md-6">
+        <div class="col-md-8">
         {{form1.as_p}}
+        </div>
     </div>
     </div>
 
-    <div class="row">
+    <div class="row"> 
     <div class="col-md-6">
         <h4>Emergency Contact</h4><hr>
+        <div class="col-md-8">
         {{form3.as_p}}
+        </div>    
     </div>
     <div class="col-md-6">
-        <h4>Insurance</h4><hr>
+        <h4>Insurance Information</h4><hr>
+        <div class="col-md-8">
         {{form4.as_p}}
+        </div>
     </div>
     </div>
 
@@ -51,7 +59,10 @@
 
      <div class="col-md-6">
      <h4>Allergens</h4><hr>
-     {{form5.as_p}}
+        <div class="col-md-8">
+        {{form5.as_p}}
+        </div>
+
      </div>
 
 

@@ -1,0 +1,231 @@
+{%extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+<form action="" method="POST">{%csrf_token%}
+
+	<div class="row">
+	<div class="col-md-8 col-md-offset-2">
+		<h2>Employee Information</h2>
+		<hr>
+		<br>
+		<h3>Username: {{username}}</h3>
+		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+		  <div class="panel panel-default">
+		    <div class="panel-heading" role="tab" id="headingOne">
+		      <h4 class="panel-title">
+		        <a data-toggle="collapse" data-parent="#accordion" href="#profileCollapse" aria-expanded="true" aria-controls="profileCollapse">
+		          <h4>Employee Profile</h4>
+		        </a>
+		      </h4>
+		    </div>
+		    <div id="profileCollapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+		     	<div class="panel-body">
+
+			      	<div class="row">
+			   		<div class="col-md-6">
+					{%for field in form2|slice:":6"%}
+						<div class="form-group">
+						{% if field.errors %}
+						{%for error in field.errors%}
+						<!-- display error -->
+							<font color="#a94442">
+								<ul>
+									<li>{{error}}</li>
+								</ul>
+							</font>
+
+						{%endfor%}
+						<!--field label -->
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+							<!--to display x icon if field gives error-->
+						<div class="form-group has-error has-feedback ">
+							<!--display field-->
+							{{field}}
+							<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+			 				<span id="inputError2Status" class="sr-only">(error)</span>
+			 				<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+
+
+						{% else %}
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+						<div class="form-group ">
+						<!--field w/o error-->
+						{{field}}
+						<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+						{%endif%}
+
+						</div>
+					{%endfor%}
+					</div>	<!--col 4-->
+
+			   		<div class="col-md-6	">
+					{%for field in form2|slice:"6:"%}
+						<div class="form-group">
+						{% if field.errors %}
+						{%for error in field.errors%}
+						<!-- display error -->
+							<font color="#a94442">
+								<ul>
+									<li>{{error}}</li>
+								</ul>
+							</font>
+
+						{%endfor%}
+						<!--field label -->
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+							<!--to display x icon if field gives error-->
+						<div class="form-group has-error has-feedback ">
+							<!--display field-->
+							{{field}}
+							<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+			 				<span id="inputError2Status" class="sr-only">(error)</span>
+			 				<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+
+
+						{% else %}
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+						<div class="form-group ">
+						<!--field w/o error-->
+						{{field}}
+						<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+						{%endif%}
+
+						</div>
+					{%endfor%}
+					</div>	<!--col 4-->
+
+		      	</div><!--row-->
+			      	<div class="form-group">
+						<div class="col-md-8 col-md-offset-4">
+							<button type="submit" class="btn btn-primary">Update</button>
+							<a class="btn btn-default" href="{% url 'employee-list' %}" role="button">Cancel</a>
+						</div>
+					</div>
+
+		     </div>
+		    </div>
+		  </div>
+		</div><!--Panel Group-->
+
+	</div><!--rol -->
+	</div> <!--row contain panels-->
+
+
+	<div class="row">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+		  <div class="panel panel-default">
+		    <div class="panel-heading" role="tab" id="headingOne">
+		      <h4 class="panel-title">
+		        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+		          <h4>{{employee_type}}/Hospital Information</h4>
+		        </a>
+		      </h4>
+		    </div>
+		    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+		     	<div class="panel-body">
+
+			      	<div class="row">
+			   		<div class="col-md-6">
+					{%for field in form1|slice:":3"%}
+						<div class="form-group">
+						{% if field.errors %}
+						{%for error in field.errors%}
+						<!-- display error -->
+							<font color="#a94442">
+								<ul>
+									<li>{{error}}</li>
+								</ul>
+							</font>
+
+						{%endfor%}
+						<!--field label -->
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+							<!--to display x icon if field gives error-->
+						<div class="form-group has-error has-feedback ">
+							<!--display field-->
+							{{field}}
+							<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+			 				<span id="inputError2Status" class="sr-only">(error)</span>
+			 				<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+
+
+						{% else %}
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+						<div class="form-group ">
+						<!--field w/o error-->
+						{{field}}
+						<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+						{%endif%}
+
+						</div>
+					{%endfor%}
+					</div>	<!--col 4-->
+
+			   		<div class="col-md-6	">
+					{%for field in form1|slice:"3:"%}
+						<div class="form-group">
+						{% if field.errors %}
+						{%for error in field.errors%}
+						<!-- display error -->
+							<font color="#a94442">
+								<ul>
+									<li>{{error}}</li>
+								</ul>
+							</font>
+
+						{%endfor%}
+						<!--field label -->
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+							<!--to display x icon if field gives error-->
+						<div class="form-group has-error has-feedback ">
+							<!--display field-->
+							{{field}}
+							<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+			 				<span id="inputError2Status" class="sr-only">(error)</span>
+			 				<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+
+
+						{% else %}
+						<label for="{{field.label}}" class=" control-label">{{field.label}}</label>
+						<div class="form-group ">
+						<!--field w/o error-->
+						{{field}}
+						<span id="helpBlock" class="help-block">{{field.help_text}}</span>
+						</div>
+						{%endif%}
+
+						</div>
+					{%endfor%}
+					</div>	<!--col 4-->
+
+		      	</div><!--row-->
+			      	<div class="form-group">
+						<div class="col-md-8 col-md-offset-4">
+							<button type="submit" class="btn btn-primary">Update</button>
+							<a class="btn btn-default" href="{% url 'employee-list' %}" role="button">Cancel</a>
+						</div>
+					</div>
+		     </div>
+		    </div>
+		  </div>
+		</div><!--Panel Group-->
+
+	</div><!--rol -->
+	</div> <!--row contain panels-->
+
+</form>
+
+</div>
+
+{%endblock%}

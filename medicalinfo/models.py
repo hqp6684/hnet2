@@ -84,10 +84,17 @@ class EmergencyContact(models.Model):
 
 
 class InsuranceInformation(models.Model):
+	INSURANCE_CHOICES = (
+        ('B', 'Blue Choice Options'),
+        ('U', 'United Healthcare'),
+        ('M', 'Medicaid'),
+        ('N', 'None'),
+        )
+
 	#history = HistoricalRecords()
 	patient = models.OneToOneField(Patient, primary_key=True, verbose_name='Related Patient')
 	policy_holder = models.CharField(max_length=100, verbose_name="Policy Holder", blank=True)
-	carrier = models.CharField(max_length=100, verbose_name="Insurance Carrier", blank=True)
+	carrier = models.CharField(max_length=1, verbose_name="Insurance Carrier", choices=INSURANCE_CHOICES, default='N')
 	policy_number = models.CharField(max_length=10, verbose_name="Policy Number", blank=True)
 
 	def __str__(self):

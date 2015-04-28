@@ -11,7 +11,9 @@ in the INSTALLED_APPS setting.
 {% block content %}
 
 <div id="postman" class="container">
+<div class="page-header">
 <h1>{% block pm_folder_title %}{% endblock %}</h1>
+</div>
 {% autopaginate pm_messages %}
 {% if invalid_page %}
 <p>{% trans "Sorry, this page number is invalid." %}</p>
@@ -23,9 +25,9 @@ in the INSTALLED_APPS setting.
 </div>{% endblock pm_by_modes %}
 <form action="{% block pm_form_action %}{% endblock %}" method="post">{% csrf_token %}
 {% block pm_form_buttons %}<span id="pm_buttons">
-{% block pm_delete_button %}<button type="submit" onclick="this.form.action='{% url 'postman_delete' %}'">{% trans "Delete" %}</button>{% endblock %}
-{% block pm_archive_button %}<button type="submit" onclick="this.form.action='{% url 'postman_archive' %}'">{% trans "Archive" %}</button>{% endblock %}
-{% block pm_undelete_button %}<button type="submit" onclick="this.form.action='{% url 'postman_undelete' %}'">{% trans "Undelete" %}</button>{% endblock %}
+{% block pm_delete_button %}<button class="btn btn-default"type="submit" onclick="this.form.action='{% url 'postman_delete' %}'">{% trans "Delete" %}</button>{% endblock %}
+{% block pm_archive_button %}<button class="btn btn-default"type="submit" onclick="this.form.action='{% url 'postman_archive' %}'">{% trans "Archive" %}</button>{% endblock %}
+{% block pm_undelete_button %}<button class="btn btn-default"type="submit" onclick="this.form.action='{% url 'postman_undelete' %}'">{% trans "Undelete" %}</button>{% endblock %}
 </span>{% endblock %}
 <table id="pm_messages" class="table">
  <thead>

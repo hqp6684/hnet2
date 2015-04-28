@@ -8,109 +8,14 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'MedicalInformation'
-        db.create_table(u'medicalinfo_medicalinformation', (
-            ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Patient'], unique=True, primary_key=True)),
-            ('initialized', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('fName', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('lName', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('mName', self.gf('django.db.models.fields.CharField')(max_length=40, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['MedicalInformation'])
 
-        # Adding model 'ChronicMedicalProblems'
-        db.create_table(u'medicalinfo_chronicmedicalproblems', (
-            ('medinfo', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['medicalinfo.MedicalInformation'], unique=True, primary_key=True)),
-            ('high_blood', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('heart', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('diabete', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('stroke', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('cancer', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('thyroid', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('asthma', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('other', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['ChronicMedicalProblems'])
-
-        # Adding model 'Allergen'
-        db.create_table(u'medicalinfo_allergen', (
-            ('medinfo', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['medicalinfo.MedicalInformation'], unique=True, primary_key=True)),
-            ('food', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('food_allegies', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('drug', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('drug_allegies', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('environmental', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('environmental_allegies', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['Allergen'])
-
-        # Adding model 'EmergencyContact'
-        db.create_table(u'medicalinfo_emergencycontact', (
-            ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Patient'], unique=True, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('phone', self.gf('localflavor.us.models.PhoneNumberField')(max_length=20, blank=True)),
-            ('relationship', self.gf('django.db.models.fields.CharField')(max_length=20, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['EmergencyContact'])
-
-        # Adding model 'InsuranceInformation'
-        db.create_table(u'medicalinfo_insuranceinformation', (
-            ('patient', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['users.Patient'], unique=True, primary_key=True)),
-            ('policy_holder', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('carrier', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('policy_number', self.gf('django.db.models.fields.CharField')(max_length=10, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['InsuranceInformation'])
-
-        # Adding model 'Case'
-        db.create_table(u'medicalinfo_case', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('medinfo', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['medicalinfo.MedicalInformation'])),
-            ('status', self.gf('django.db.models.fields.CharField')(default='N', max_length=1)),
-            ('problem', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('diagnosis', self.gf('django.db.models.fields.CharField')(default='None', max_length=200)),
-            ('test_result', self.gf('django.db.models.fields.CharField')(default='None', max_length=200)),
-            ('last_action', self.gf('django.db.models.fields.CharField')(default='N', max_length=1)),
-            ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['Case'])
-
-        # Adding model 'Prescription'
-        db.create_table(u'medicalinfo_prescription', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('case', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['medicalinfo.Case'])),
-            ('drug', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('instruction', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('refill', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=0)),
-            ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
-            ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-        ))
-        db.send_create_signal(u'medicalinfo', ['Prescription'])
-
+        # Changing field 'InsuranceInformation.carrier'
+        db.alter_column(u'medicalinfo_insuranceinformation', 'carrier', self.gf('django.db.models.fields.CharField')(max_length=1))
 
     def backwards(self, orm):
-        # Deleting model 'MedicalInformation'
-        db.delete_table(u'medicalinfo_medicalinformation')
 
-        # Deleting model 'ChronicMedicalProblems'
-        db.delete_table(u'medicalinfo_chronicmedicalproblems')
-
-        # Deleting model 'Allergen'
-        db.delete_table(u'medicalinfo_allergen')
-
-        # Deleting model 'EmergencyContact'
-        db.delete_table(u'medicalinfo_emergencycontact')
-
-        # Deleting model 'InsuranceInformation'
-        db.delete_table(u'medicalinfo_insuranceinformation')
-
-        # Deleting model 'Case'
-        db.delete_table(u'medicalinfo_case')
-
-        # Deleting model 'Prescription'
-        db.delete_table(u'medicalinfo_prescription')
-
+        # Changing field 'InsuranceInformation.carrier'
+        db.alter_column(u'medicalinfo_insuranceinformation', 'carrier', self.gf('django.db.models.fields.CharField')(max_length=100))
 
     models = {
         u'auth.group': {
@@ -192,7 +97,7 @@ class Migration(SchemaMigration):
         },
         u'medicalinfo.insuranceinformation': {
             'Meta': {'object_name': 'InsuranceInformation'},
-            'carrier': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'carrier': ('django.db.models.fields.CharField', [], {'default': "'N'", 'max_length': '1'}),
             'patient': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['users.Patient']", 'unique': 'True', 'primary_key': 'True'}),
             'policy_holder': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'policy_number': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'})

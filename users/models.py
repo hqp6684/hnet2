@@ -9,13 +9,14 @@ from postman.models import Message
 # Create your models here.
 
 LOCATION_CHOICES = (
-    ('01', 'ROCHESTER'),
-    ('02', 'BUFFALO'),
-    ('03', 'NEW YORK CITY'),
+    ('01', 'Rochester'),
+    ('02', 'Buffalo'),
+    ('03', 'New York City'),
     )
 
 class UserProfile(models.Model):
     #history = HistoricalRecords()
+    location = models.CharField(max_length=2, choices=LOCATION_CHOICES, default='01', verbose_name='Hospital')
     user = models.OneToOneField(User, primary_key=True)
     #reference id. This id is used to hind user primary key
     ref_id = models.CharField(max_length=120, default='abc', unique=True)
@@ -32,7 +33,6 @@ class UserProfile(models.Model):
     email = models.EmailField(max_length=75, verbose_name ="Email", unique=True)
     dateJoin = models.DateField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
-    location = models.CharField(max_length=2, choices=LOCATION_CHOICES, default='01')
 
 
 
@@ -89,26 +89,29 @@ class Employee(models.Model):
         ('R', 'Receptionist'),
         )
     #to translate, use get_employee_type_display
-    employee_type = models.CharField(max_length=1, choices=EMPLOYEE_CHOICES)
+    employee_type = models.CharField(max_length=1, choices=EMPLOYEE_CHOICES, verbose_name="Employee Type")
     
 
     def __str__(self):
-        return self.employee_type + " " + self.employee.username
+        return self.get_employee_type_display() + " - " + self.employee.username
     def _employee_info(self):
-        info = self.employee_type + " " + self.employee.username + " "+self.employee.userprofile.get_location_display()
+        info = self.get_employee_type_display() + " - " + self.employee.username + " - "+self.employee.userprofile.get_location_display()
         return info
 
 class Doctor(models.Model):
     #history = HistoricalRecords()
     doctor = models.OneToOneField(Employee, primary_key=True, verbose_name="Doctor")
+    lisence = models.CharField(max_length=10, blank=True, verbose_name="Lisence")
     specialty = models.CharField(max_length=100, default="Unknown")
     available = models.BooleanField(default=True)
-    max_patients = models.PositiveSmallIntegerField(default=10)
-    current_patient_count = models.PositiveSmallIntegerField(default=0)
+    max_patients = models.PositiveSmallIntegerField(default=10,verbose_name="Max Patients")
+    current_patient_count = models.PositiveSmallIntegerField(default=0, verbose_name="Current Patient Count")
+    dateJoin = models.DateField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
 
     def __str__(self):
-        return self.doctor._employee_info()
+        return self.doctor._employee_info() + " - "+ self.specialty
 
     @classmethod
     def create(doc, employee):
@@ -119,10 +122,14 @@ class Doctor(models.Model):
 class Nurse(models.Model):
     #history = HistoricalRecords()
     nurse = models.OneToOneField(Employee, primary_key=True, verbose_name="Nurse")
-    available = models.BooleanField(default=True)
-    max_patients = models.PositiveSmallIntegerField(default=10)
-    current_patient_count = models.PositiveSmallIntegerField(default=0)
-  
+    available = models.BooleanField(default=True, verbose_name="Available")
+    lisence = models.CharField(max_length=10, blank=True, verbose_name="Lisence")
+    specialty = models.CharField(max_length=100, default="Unknown")  
+    max_patients = models.PositiveSmallIntegerField(default=10,verbose_name="Max Patients")
+    current_patient_count = models.PositiveSmallIntegerField(default=0, verbose_name="Current Patient Count")
+    dateJoin = models.DateField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+ 
 
     @classmethod
     def create(nur, employee):
@@ -130,7 +137,7 @@ class Nurse(models.Model):
         return nurse
 
     def __str__(self):
-        return self.nurse._employee_info()
+        return self.nurse._employee_info() + " - " + self.specialty
 
 
 class Receptionist(models.Model):

@@ -2,12 +2,34 @@
 
 {% block content %}
 <div class="container">
-<div><h1>Patient List</h1></div>
+<div class="page-header">
+  <h1>Patient List <small>Inactive patients</small></h1>
+</div>
+
+<nav>
+<ul class="pagination">
+    <span class="step-links">
+        {% if patients.has_previous %}
+            <a href="?page={{ patients.previous_page_number }}"><span class="glyphicon glyphicon-arrow-left"></a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ patients.number }} of {{ patients.paginator.num_pages }}.
+        </span>
+
+        {% if patients.has_next %}
+            <a href="?page={{ patients.next_page_number }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
+        {% endif %}
+    </span>
+</ul>
+
+</nav>
 
 <table class="table">
 <thead>
 	<tr>
 		<th>Patient Name</th>
+		<th>Location</th>
 		<th>Active Status</th>
 		<th>Last Action</th>
 	</tr>
@@ -16,6 +38,7 @@
 	{%for patient in patients%}
 	<tr>
 		<th> {{patient}}</th>
+		<th>{{patient.patient.userprofile.get_location_display}}
 		<th>{{patient.is_active}}</th>
 		<th>{{patient.get_last_action_display}} on {{patient.updated}}</th>
 		<th>  <a class="btn btn-default" href="{{patient.patient.userprofile.get_activate_url}}" role="button">Admit Patient</a></th>

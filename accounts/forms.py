@@ -97,9 +97,43 @@ class UserProfileForm(forms.ModelForm):
             'state' : forms.Select(attrs={'class': 'form-control'}),
             'zipcode' : forms.TextInput(attrs={'class':'form-control'}),
             'email' : forms.EmailInput(attrs={'class':'form-control'}),
+            'location': forms.Select(attrs={'class':'form-control'}),
+        }
+
+    def clean_dOB(self):
+        dOB = self.cleaned_data['dOB']
+        age = (datetime.date.today() - dOB).days/365
+        if age < 18:
+            raise forms.ValidationError('Must be at least 18 years old to register')
+        return dOB
+
+
+
+class DoctorForm(forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = ['specialty', 'available', 'max_patients','current_patient_count', 'lisence',]
+        widgets = {
+            'available' : forms.NullBooleanSelect(attrs={'class': 'form-control'}),
+            'specialty' : forms.TextInput(attrs={'class':'form-control'}),
+            'lisence' : forms.TextInput(attrs={'class':'form-control'}),
+            'max_patients' : forms.NumberInput(attrs={'class':'form-control'}),
+            'current_patient_count' : forms.NumberInput(attrs={'class':'form-control'}),
         }
 
 
+class NurseForm(forms.ModelForm):
+    class Meta:
+        model = Nurse
+
+        fields = ['specialty', 'available', 'max_patients','current_patient_count', 'lisence',]
+        widgets = {
+            'available' : forms.NullBooleanSelect(attrs={'class': 'form-control'}),
+            'specialty' : forms.TextInput(attrs={'class':'form-control'}),
+            'lisence' : forms.TextInput(attrs={'class':'form-control'}),
+            'max_patients' : forms.NumberInput(attrs={'class':'form-control'}),
+            'current_patient_count' : forms.NumberInput(attrs={'class':'form-control'}),
+        }
 
 #create a new patient
 class NewPatientForm(forms.ModelForm):
@@ -107,11 +141,45 @@ class NewPatientForm(forms.ModelForm):
         model = Patient
         exclude = ['last_action']
 
+class EmployeeProfileForm(forms.ModelForm):
+    sSN = USSocialSecurityNumberField(label=_("SSN"), 
+        widget=forms.TextInput(attrs={'class':'form-control'}),
+        max_length=11,)
+    phoneNumber = USPhoneNumberField(label=_("Phone"),
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        max_length=15,)
+
+    class Meta:
+        model = UserProfile
+        exclude = ['user', 'ref_id',]
+
+        fields =['fName', 'lName', 'mName', 'dOB', 'sSN',
+        'phoneNumber','streetAddress','city','state',
+        'zipcode','email','location']
+        widgets = {
+            'fName' : forms.TextInput(attrs={'class':'form-control'}),
+            'lName' : forms.TextInput(attrs={'class':'form-control'}),
+            'mName' : forms.TextInput(attrs={'class':'form-control'}),
+            'dOB' : forms.DateInput(attrs={'class':'datepicker form-control'}),
+            'streetAddress' : forms.TextInput(attrs={'class':'form-control'}),
+            'city' : forms.TextInput(attrs={'class':'form-control'}),
+            'state' : forms.Select(attrs={'class': 'form-control'}),
+            'zipcode' : forms.TextInput(attrs={'class':'form-control'}),
+            'email' : forms.EmailInput(attrs={'class':'form-control'}),
+            'location': forms.Select(attrs={'class':'form-control'}),
+        }
+    def clean_dOB(self):
+        dOB = self.cleaned_data['dOB']
+        age = (datetime.date.today() - dOB).days/365
+        if age < 18:
+            raise forms.ValidationError('Must be at least 18 years old to register')
+        return dOB
 
 #activate new patient
 class PatientActivateForm(forms.ModelForm):
+    error_css_class = 'form-group has-error'
+    #required_css_class = 'form-group has-error'
 
-    is_active = forms.BooleanField(label=_("Check this box to admit patient"),)
     primary_doctor = forms.ModelChoiceField(queryset=Doctor.objects.filter(available=True),
         label=_("Primary Doctor"),
         widget= forms.Select(attrs={'class':'form-control'})
@@ -120,7 +188,9 @@ class PatientActivateForm(forms.ModelForm):
         label=_("Primary Nurse"),
         widget= forms.Select(attrs={'class':'form-control'})
         )
-
+    is_active = forms.BooleanField(label=_("Confirm to admit "),
+        widget= forms.NullBooleanSelect(attrs={'class':'form-control'})
+        )
     class Meta:
         model = Patient
         exclude = ['patient', 'doctors', 'nurses', 'last_action' ]
@@ -128,7 +198,9 @@ class PatientActivateForm(forms.ModelForm):
 #transfer patient
 class PatientTransferForm(forms.ModelForm):
     
-    transfer = forms.BooleanField(label=_("Check this box to transfer patient"),)
+    transfer = forms.BooleanField(label=_("Confirm to transfer: "),
+        widget= forms.NullBooleanSelect(attrs={'class':'form-control'})
+        )
     primary_doctor = forms.ModelChoiceField(queryset=Doctor.objects.filter(available=True),
         label=_("Primary Doctor"),
         widget= forms.Select(attrs={'class':'form-control'})
@@ -149,8 +221,10 @@ class PatientAddDoctorForm(forms.ModelForm):
         label=_("Doctor"),
         widget= forms.Select(attrs={'class':'form-control'})
         )
-    add = forms.BooleanField(label=_("Check this box to refer patient to this doctor"),)
-    
+    add = forms.BooleanField(label=_("Confirm this referral "),
+        widget= forms.NullBooleanSelect(attrs={'class':'form-control'})
+        )
+
     class Meta:
         model = Patient
         exclude = ['is_active', 'patient', 'doctors', 'nurses', 'last_action','primary_nurse', 'primary_doctor']
@@ -158,8 +232,9 @@ class PatientAddDoctorForm(forms.ModelForm):
 #activate new patient
 class PatientDischargeForm(forms.ModelForm):
 
-    discharge = forms.BooleanField(label=_("Do you want to discharge this patient ?"),)
-
+    discharge = forms.BooleanField(label=_("Confirm to discharge "),
+        widget= forms.NullBooleanSelect(attrs={'class':'form-control'})
+        )
     class Meta:
         model = Patient
         exclude = ['patient', 'doctors', 'nurses', 'primary_nurse', 'primary_doctor', 'is_active' , 'last_action']
@@ -172,6 +247,9 @@ class EmployeeCreationForm(forms.ModelForm):
         model = Employee
         exclude = ['employee']
         fields= ['employee_type']
+        widgets = {
+            'employee_type': forms.Select(attrs={'class':'form-control'}),
+        }
 
 
 

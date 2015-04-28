@@ -12,7 +12,8 @@ import datetime
 
 from .forms import (UserCreationForm, UserProfileForm, 
     NewPatientForm, AuthenticationForm, EmployeeCreationForm,
-    PatientActivateForm, PatientDischargeForm, PatientTransferForm,PatientAddDoctorForm,
+    PatientActivateForm, PatientDischargeForm, PatientTransferForm,PatientAddDoctorForm, DoctorForm,
+    NurseForm,EmployeeProfileForm,
 
 )
 
@@ -21,7 +22,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
-
+from django.core.urlresolvers import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from postman.api import pm_write
 
@@ -88,43 +90,45 @@ def account_system_notify(recipient, code, plus):
     sender = User.objects.get(username='system')
     #addon
     #also send to patient's doc and nurse
-    doc = recipient.patient.primary_doctor.doctor.employee
-    nurse = recipient.patient.primary_nurse.nurse.employee
 
     if code=='new_user':
         subject = 'New user confirmation'
         body = 'Congratulation. You have successfully registered as one of Healthnet user.\nWhat next?\nPlease contact us to get enrolled as one of our patient'
         pm_write(sender, recipient, subject=subject, body=body)
+   
+    else:
+        doc = recipient.patient.primary_doctor.doctor.employee
+        nurse = recipient.patient.primary_nurse.nurse.employee
 
-    elif code=='admission':
-        subject = 'Admission confirmation'
-        body = 'User: %s have been admitted with\nDoctor: %s\nNurse: %s' %(recipient.username,doc.username,nurse.username)
+        if code=='admission':
+            subject = 'Admission confirmation'
+            body = 'User: %s have been admitted with\nDoctor: %s\nNurse: %s' %(recipient.username,doc.username,nurse.username)
 
-        pm_write(sender, recipient, subject=subject, body=body)
-        pm_write(sender, doc, subject=subject, body=body)
-        pm_write(sender, nurse, subject=subject, body=body)
+            pm_write(sender, recipient, subject=subject, body=body)
+            pm_write(sender, doc, subject=subject, body=body)
+            pm_write(sender, nurse, subject=subject, body=body)
 
-    elif code=='discharge':
-        subject = 'Discharge confirmation'
-        body = 'Patient: %s has been discharged by Doctor: %s'%(recipient.username,doc.username)
+        elif code=='discharge':
+            subject = 'Discharge confirmation'
+            body = 'Patient: %s has been discharged by Doctor: %s'%(recipient.username,doc.username)
 
-        pm_write(sender, recipient, subject=subject, body=body)
-        pm_write(sender, doc, subject=subject, body=body)
-        pm_write(sender, nurse, subject=subject, body=body)
+            pm_write(sender, recipient, subject=subject, body=body)
+            pm_write(sender, doc, subject=subject, body=body)
+            pm_write(sender, nurse, subject=subject, body=body)
 
-    elif code=='transfer_to':
-        subject = 'Transfer confirmation'
-        body = 'Patient: %s has been transfered to Doctor: %s'%(recipient.username,doc.username)
-        pm_write(sender, recipient, subject=subject, body=body)
-        pm_write(sender, doc, subject=subject, body=body)
-        pm_write(sender, nurse, subject=subject, body=body)
+        elif code=='transfer_to':
+            subject = 'Transfer confirmation'
+            body = 'Patient: %s has been transfered to Doctor: %s'%(recipient.username,doc.username)
+            pm_write(sender, recipient, subject=subject, body=body)
+            pm_write(sender, doc, subject=subject, body=body)
+            pm_write(sender, nurse, subject=subject, body=body)
 
-    elif code=='refer':
-        subject = 'Referral Confirmation'
-        body = 'Patient: %s has been refered to Doctor: %s by Doctor: %s'%(recipient.username, plus.username, doc.username)
-        pm_write(sender, recipient, subject=subject, body=body)
-        pm_write(sender, doc, subject=subject, body=body)
-        pm_write(sender, nurse, subject=subject, body=body)
+        elif code=='refer':
+            subject = 'Referral Confirmation'
+            body = 'Patient: %s has been refered to Doctor: %s by Doctor: %s'%(recipient.username, plus.username, doc.username)
+            pm_write(sender, recipient, subject=subject, body=body)
+            pm_write(sender, doc, subject=subject, body=body)
+            pm_write(sender, nurse, subject=subject, body=body)
 
         #except sender not exist
     #except:
@@ -252,7 +256,7 @@ def employee_register(request):
 
 
     template_name = 'accounts/account_employee_register_form.html'
-    context = {'form1': form1, 'form2':form2, 'form3':form3}
+    context = {'form1': list(form1), 'form2':list(form2), 'form3':list(form3)}
     return render(request, template_name, context)
 
 
@@ -350,11 +354,47 @@ def employee_list_view(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    employees = Employee.objects.all()
+    employee_list = Employee.objects.all()
+    paginator = Paginator(employee_list, 10)
+    page = request.GET.get('page')
+    try:
+        employees = paginator.page(page)
+    except PageNotAnInteger:    
+        employees = paginator.page(1)
+    except EmptyPage:
+        employees = paginator.page(paginator.num_pages)
+
     context={'employees':employees}
 
     return render(request, template_name, context)
 
+@permission_required('medicalinfo.read_medinfo', raise_exception=True)
+def case_list_view(request, ref_id):
+    template_name= 'medicalinfo/medinfo_case_list_view.html'
+
+    #ensure patient cannot init other patients med-info
+    if medinfo_security_check(request.user, ref_id):
+
+        patient = trace_user(ref_id).patient
+        #get patient medicalinfo instance
+        medinfo = patient.medicalinformation
+
+        case_list = medinfo.case_set.all().order_by('-updated')
+        paginator = Paginator(case_list,5)
+
+        page = request.GET.get('page')
+        try:
+            cases = paginator.page(page)
+        except PageNotAnInteger:    
+            cases = paginator.page(1)
+        except EmptyPage:
+            cases = paginator.page(paginator.num_pages)
+
+
+        context = {'cases':cases, 'ref_id':ref_id, 'patient':patient.patient.username}
+        return render(request, template_name, context)
+    else:
+        raise PermissionDenied
 
 def employee_update_view(request, ref_id):
     template_name = 'accounts/account_employee_form.html'
@@ -362,6 +402,34 @@ def employee_update_view(request, ref_id):
     if not request.user.is_superuser:
         raise PermissionDenied
     user = trace_user(ref_id)
+
+    #get doctor/nurse instance
+    try: 
+        emp_type = user.employee.employee_type
+        if emp_type =='D':
+            emp = user.employee.doctor
+            form1 = DoctorForm(request.POST or None, instance=emp, prefix='e')
+        elif emp_type =='N':
+            emp = user.employee.nurse
+            form1 = NurseForm(request.POST or None, instance=emp, prefix='e')
+
+    except Exception, e:
+        raise e
+
+    profile = user.userprofile
+    form2 = EmployeeProfileForm(request.POST or None, instance=profile, prefix='p')
+
+    if request.POST:
+        if form1.is_valid() and form2.is_valid():
+            form1.save()
+            form2.save()
+            messages.success(request, 'You have successfully updated %s information' %(user.username))
+            return redirect(reverse('employee-update', kwargs={'ref_id':profile.ref_id}))
+        else:
+            messages.error(request, 'Please correct the fields with error')
+
+
+    context = {'form1':list(form1), 'form2':list(form2), 'username':user.username, 'employee_type':user.employee.get_employee_type_display()}
 
     return render(request, template_name, context)
 
@@ -388,9 +456,20 @@ def patient_list_view(request):
 @permission_required('users.read_patient', raise_exception=True)
 def patient_inactive_list_view(request):
     template_name = 'accounts/account_patient_inactive_list.html'
-    patients = Patient.objects.filter(is_active=False)
+    patient_list = Patient.objects.filter(is_active=False)
+    paginator = Paginator(patient_list, 10)
+    page = request.GET.get('page')
+    try:
+        patients = paginator.page(page)
+    except PageNotAnInteger:    
+        patients = paginator.page(1)
+    except EmptyPage:
+        patients = paginator.page(paginator.num_pages)
+
     context = {'patients':patients}
     return render(request, template_name, context)
+
+
 
 #For doctor and nurse to see their patients
 @permission_required('users.read_patient', raise_exception=True)
@@ -479,7 +558,7 @@ def patient_activate(request, ref_id):
         else:
             messages.error(request, 'Please correct the fields with error')
 
-    context = {'form':form, 'patient_username':p.username}
+    context = {'form':form, 'patient_username':p.username, 'location':p.userprofile.get_location_display()}
     return render(request, template_name, context)
 
 
