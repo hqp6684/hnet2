@@ -5,7 +5,7 @@ import datetime
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from users.models import UserProfile, Employee, Doctor, Nurse, Receptionist, Patient
-from medicalinfo.models import MedicalInformation, InsuranceInformation
+from medicalinfo.models import MedicalInformation, InsuranceInformation, Allergen
 from django.contrib.auth.models import User
 
 #custom 403 handler when permission_denied is raised
@@ -48,15 +48,25 @@ def statistic(request):
 	united = InsuranceInformation.objects.filter(carrier='U').count()
 	medicaid = InsuranceInformation.objects.filter(carrier='M').count()
 
+	food_allergy = Allergen.objects.filter(food=True).count()
+	drug_allergy = Allergen.objects.filter(drug=True).count()
+	environmental_allegy = Allergen.objects.filter(environmental=True).count()
+
+
 
 	context = {'users_total':users_total,
 		'non_patients':non_patients,
 		'employees':employees,
 		'patients':patients,
+
 		'no_insurance':no_insurance,
 		'bluechoice':bluechoice,
 		'united':united,
 		'medicaid':medicaid,
+
+		'food_allergy':food_allergy,
+		'drug_allergy':drug_allergy,
+		'environmental_allegy':environmental_allegy
 
 	}
 
