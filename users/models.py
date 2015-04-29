@@ -141,7 +141,12 @@ class Nurse(models.Model):
 
 
 class Receptionist(models.Model):
+
     receptionist = models.OneToOneField(Employee, primary_key=True)
+
+    dateJoin = models.DateField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+ 
 
     @classmethod
     def create(rep, employee):

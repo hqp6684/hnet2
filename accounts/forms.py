@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from users.models import UserProfile, Patient, Employee, Doctor, Nurse
+from users.models import UserProfile, Patient, Employee, Doctor, Nurse, Receptionist
 from django.forms.models import model_to_dict, fields_for_model
 from django.utils.translation import ugettext, ugettext_lazy as _
 
@@ -134,6 +134,11 @@ class NurseForm(forms.ModelForm):
             'max_patients' : forms.NumberInput(attrs={'class':'form-control'}),
             'current_patient_count' : forms.NumberInput(attrs={'class':'form-control'}),
         }
+class ReceptionistForm(forms.ModelForm):
+    class Meta:
+        model = Receptionist
+
+        fields = []
 
 #create a new patient
 class NewPatientForm(forms.ModelForm):

@@ -13,7 +13,7 @@ import datetime
 from .forms import (UserCreationForm, UserProfileForm, 
     NewPatientForm, AuthenticationForm, EmployeeCreationForm,
     PatientActivateForm, PatientDischargeForm, PatientTransferForm,PatientAddDoctorForm, DoctorForm,
-    NurseForm,EmployeeProfileForm,
+    NurseForm,EmployeeProfileForm,ReceptionistForm,
 
 )
 
@@ -412,6 +412,10 @@ def employee_update_view(request, ref_id):
         elif emp_type =='N':
             emp = user.employee.nurse
             form1 = NurseForm(request.POST or None, instance=emp, prefix='e')
+        elif emp_type =='R':
+            emp = user.employee.receptionist
+            form1 = ReceptionistForm(request.POST or None, instance=emp, prefix='e')
+
 
     except Exception, e:
         raise e
