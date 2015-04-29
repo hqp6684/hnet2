@@ -1,0 +1,27 @@
+{%extends 'base.html'%}
+
+
+{%load static%}
+
+{% block css %}
+<link href="{%static 'css/calendar.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class = "adjacent_month_buttons">
+        <div class = "button">
+            <a href="{{cal_object.get_prev_month_url}}">Prev Month</a>
+        </div>
+        <div class = "button">
+            <a href="{{cal_object.get_next_month_url}}">Next Month</a>
+        </div>
+    </div>
+
+
+    {{calendar}}
+
+
+    <a href="{%url 'appointment-create' %}">New Appointment</a>
+
+{%endblock%}

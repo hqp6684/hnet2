@@ -1,0 +1,14 @@
+{%extends "base.html"%}
+
+{%block content%}
+<h1>{{ object.title }}</h1>
+<p>{{ object.description }}</p>
+<p>Begins: {{ object.start_time }}</p>
+<p>Ends: {{ object.end_time }}</p>
+<p>Doctor: {{ object.doctor }}</p>
+<p>Patient: {{ object.patient }}</p>
+<p>Location: {{ object.location }}</p>
+
+<a href="{%url 'appointment-update' object.pk%}">Edit</a>
+<a href="{%url 'appointment-delete' object.pk%}">Delete</a>
+{%endblock%}
