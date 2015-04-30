@@ -7,7 +7,14 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from django.contrib.auth import authenticate, get_user_model
 from localflavor.us.forms import USSocialSecurityNumberField, USPhoneNumberField  
 import datetime
-
+#
+#
+'''
+This form is use to create basic user
+It requires username and password
+'''
+#
+#
 class UserCreationForm(forms.ModelForm):
 
     #error_css_class = 'alert-danger'
@@ -40,7 +47,6 @@ class UserCreationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ("username",)
-
     def clean_username(self):
         # Since User.username is unique, this check is redundant,
         # but it sets a nicer error message than the ORM. See #13147.
@@ -71,6 +77,13 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
+#
+'''
+Extends django User base auth account with 
+user information
+'''
+#
+#
 
 class UserProfileForm(forms.ModelForm):
     sSN = USSocialSecurityNumberField(label=_("SSN"), 
@@ -108,7 +121,31 @@ class UserProfileForm(forms.ModelForm):
         return dOB
 
 
+#
+'''
+After user is created, this form is used to create 
+Employee instance
+'''
+#
+#
 
+class EmployeeCreationForm(forms.ModelForm):
+    
+    class Meta:
+        model = Employee
+        exclude = ['employee']
+        fields= ['employee_type']
+        widgets = {
+            'employee_type': forms.Select(attrs={'class':'form-control'}),
+        }
+
+#
+'''
+After user is created, this form is used to create 
+Doctor instance
+'''
+#
+#
 class DoctorForm(forms.ModelForm):
     class Meta:
         model = Doctor
@@ -121,6 +158,13 @@ class DoctorForm(forms.ModelForm):
             'current_patient_count' : forms.NumberInput(attrs={'class':'form-control'}),
         }
 
+#
+'''
+After user is created, this form is used to create 
+Nurse instance
+'''
+#
+#
 
 class NurseForm(forms.ModelForm):
     class Meta:
@@ -134,11 +178,28 @@ class NurseForm(forms.ModelForm):
             'max_patients' : forms.NumberInput(attrs={'class':'form-control'}),
             'current_patient_count' : forms.NumberInput(attrs={'class':'form-control'}),
         }
+
+#
+'''
+After user is created, this form is used to create 
+Receptionist instance
+'''
+#
+#
+
 class ReceptionistForm(forms.ModelForm):
     class Meta:
         model = Receptionist
 
         fields = []
+
+#
+'''
+After user is created, this form is used to create 
+Patient instance
+'''
+#
+#
 
 #create a new patient
 class NewPatientForm(forms.ModelForm):
@@ -146,6 +207,12 @@ class NewPatientForm(forms.ModelForm):
         model = Patient
         exclude = ['last_action']
 
+#
+'''
+Extends employee instance with information
+'''
+#
+#
 class EmployeeProfileForm(forms.ModelForm):
     sSN = USSocialSecurityNumberField(label=_("SSN"), 
         widget=forms.TextInput(attrs={'class':'form-control'}),
@@ -173,13 +240,25 @@ class EmployeeProfileForm(forms.ModelForm):
             'email' : forms.EmailInput(attrs={'class':'form-control'}),
             'location': forms.Select(attrs={'class':'form-control'}),
         }
+    #
+    '''
+    User need to be > 18 to register
+    '''
+    #
+    #
+
     def clean_dOB(self):
         dOB = self.cleaned_data['dOB']
         age = (datetime.date.today() - dOB).days/365
         if age < 18:
             raise forms.ValidationError('Must be at least 18 years old to register')
         return dOB
-
+#
+'''
+Used to enroll user as patient instance
+'''
+#
+#
 #activate new patient
 class PatientActivateForm(forms.ModelForm):
     error_css_class = 'form-group has-error'
@@ -246,15 +325,6 @@ class PatientDischargeForm(forms.ModelForm):
 
 
 
-class EmployeeCreationForm(forms.ModelForm):
-    
-    class Meta:
-        model = Employee
-        exclude = ['employee']
-        fields= ['employee_type']
-        widgets = {
-            'employee_type': forms.Select(attrs={'class':'form-control'}),
-        }
 
 
 

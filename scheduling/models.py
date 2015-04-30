@@ -8,6 +8,11 @@ from django.core.urlresolvers import reverse
 from django.utils.html import conditional_escape as esc
 
 # Create your models here.
+LOCATION_CHOICES = (
+    ('01', 'Rochester'),
+    ('02', 'Buffalo'),
+    ('03', 'New York City'),
+    )
 
 class Appointment(models.Model):
     patient = models.ForeignKey(Patient);
@@ -16,7 +21,7 @@ class Appointment(models.Model):
     end_time = models.DateTimeField()
     title = models.CharField(max_length = 100)
     description = models.CharField(max_length = 500)
-    location = models.CharField(max_length = 200)
+    location = models.CharField(max_length=2, choices=LOCATION_CHOICES, default='01')
 
     def has_passed(self):
         return self.end_time < datetime.now()

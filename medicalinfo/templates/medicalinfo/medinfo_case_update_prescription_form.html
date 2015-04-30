@@ -40,7 +40,11 @@
 
         {{form2.as_p}}
     {%if user.employee.doctor %}
+    <br>
     <button class="btn btn-primary" type="submit">Update</button>
+    <a class="btn btn-default" href="{%url 'case-list-view' ref_id=ref_id %}">Cancel</a>
+   
+
     {%endif%}
  
 

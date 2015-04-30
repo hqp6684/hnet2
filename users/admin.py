@@ -4,10 +4,9 @@ from simple_history.admin import SimpleHistoryAdmin
 
 # Register your models here.
 
-admin.site.register(UserProfile)
+admin.site.register(UserProfile,SimpleHistoryAdmin)
 admin.site.register(Patient, SimpleHistoryAdmin)
-admin.site.register(Employee)
-admin.site.register(Doctor)
-admin.site.register(Nurse)
-
-admin.site.register(Receptionist)
+admin.site.register(Employee,SimpleHistoryAdmin)
+admin.site.register(Doctor,SimpleHistoryAdmin)
+admin.site.register(Nurse,SimpleHistoryAdmin)
+admin.site.register(Receptionist,SimpleHistoryAdmin)

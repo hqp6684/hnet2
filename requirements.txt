@@ -44,4 +44,14 @@ Paginator - inactive patients list, employees list view, case list view,
 Statistic - Users - Insurance
 
 
+Log4/29
+Appointment
+Create
+Update
+Delete
+
+Back to top
+
+If patient didnot initialize their med, doctor can see all funtions
+Number input
 

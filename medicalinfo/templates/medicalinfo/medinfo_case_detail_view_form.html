@@ -54,9 +54,8 @@
     </div>
 
     {%if user.employee.doctor %}
+    <br>
     <a class="btn btn-primary" href="{%url 'case-update' ref_id=ref_id case_id=case_id%}">Update</a>
-    <a class="btn btn-default" href="{%url 'case-list-view' ref_id=ref_id %}">Back</a>
-   
     {%endif%}
     <a class="btn btn-default" href="{%url 'case-list-view' ref_id=ref_id%}">Back</a>
 

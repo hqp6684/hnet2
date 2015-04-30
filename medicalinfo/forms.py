@@ -11,7 +11,6 @@ from medicalinfo.models import (MedicalInformation, ChronicMedicalProblems,
     EmergencyContact, InsuranceInformation, Allergen, Case, Prescription,
 )
 
-
 class ChronicMedicalProblemsForm(forms.ModelForm):
 
     class Meta:
@@ -29,6 +28,13 @@ class MedinfoInitForm(forms.ModelForm):
             'lName' : forms.TextInput(attrs={'class':'form-control'}),
             'mName' : forms.TextInput(attrs={'class':'form-control'}),
         }
+#===========================================================================
+#===========================================================================
+#Form used by patient/doc/nurse to create a new medical case
+#
+#===========================================================================
+#===========================================================================
+
 class CaseInitForm(forms.ModelForm):
 
     class Meta:
@@ -37,6 +43,12 @@ class CaseInitForm(forms.ModelForm):
         widgets = {
             'problem' : forms.Textarea(attrs={'class':'form-control', 'rows':6}),
         }
+#===========================================================================
+#===========================================================================
+#Display case detail
+#
+#===========================================================================
+#===========================================================================
 
 class CaseForm(forms.ModelForm):
     error_css_class = 'form-group has-error'
@@ -50,12 +62,27 @@ class CaseForm(forms.ModelForm):
             'test_result' : forms.TextInput(attrs={'class':'form-control '}),
             'problem' : forms.Textarea(attrs={'class':'form-control', 'rows':6}),
         }
+#===========================================================================
+#===========================================================================
+#Used by doctor to write description
+#
+#===========================================================================
+#===========================================================================
 
 class PrescriptionForm(forms.ModelForm):
 
     class Meta: 
         model = Prescription
         exclude = ['case']
+        widgets = {
+            'drug' : forms.TextInput(attrs={'class':'form-control '}),
+            'refill' : forms.NumberInput(attrs={'class':'form-control '}),
+            'instruction' : forms.Textarea(attrs={'class':'form-control', 'rows':6}),
+        }
+
+    def __str__(self):
+        return self.case + " " + self.drug
+
 
 
 class MedinfoViewForm(forms.ModelForm):

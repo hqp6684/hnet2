@@ -1,19 +1,13 @@
 {%extends 'base.html'%}
 
-{%block css%}
-<link rel="stylesheet"
-              href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.css">
-        <link rel="stylesheet"
-              href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.css">
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js">
-        </script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
-        </script>
-        {{ form.media }}
-{%endblock%}
 
 {% block content %}
-
+<div class="container">
+<div class="page-header">
+  <h1>New Appointment<small></small></h1>
+</div>
+<div clas="row">
+<div class="col-md-6 col-md-offset-2"> 
 <form method="post" role="form">
             {% for field in form.visible_fields %}
             <div id="div_{{ field.html_name }}"
@@ -34,11 +28,14 @@
             {% csrf_token %}
             <div class="form-group">
                 <input type="submit" value="Submit" class="btn btn-primary" />
+                <a class="btn btn-default" href="{{user.userprofile.get_calendar_url}}">Cancel</a>
+
             </div>
         </form>
+</div>
+</div>
 
-
-
+</div>
 
 
 {%endblock%}

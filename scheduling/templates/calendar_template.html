@@ -3,25 +3,31 @@
 
 {%load static%}
 
-{% block css %}
-<link href="{%static 'css/calendar.css' %}" rel="stylesheet">
-{% endblock %}
 
 {% block content %}
+<div class="container">
+<div class="page-header">
+  <h1>Appointment Calendar<small></small></h1>
+</div>
+
+    <link href="{%static 'css/calendar.css' %}" rel="stylesheet">
 
     <div class = "adjacent_month_buttons">
         <div class = "button">
-            <a href="{{cal_object.get_prev_month_url}}">Prev Month</a>
+            <a class="btn btn-default"href="{{cal_object.get_prev_month_url}}">Prev Month</a>
         </div>
         <div class = "button">
-            <a href="{{cal_object.get_next_month_url}}">Next Month</a>
+            <a class="btn btn-default" href="{{cal_object.get_next_month_url}}">Next Month</a>
         </div>
     </div>
 
 
     {{calendar}}
 
+<br>
+<br>
+    <a class="btn btn-primary" href="{%url 'appointment-create' %}">New Appointment</a>
+    <a class="btn btn-default" href="{{user.userprofile.get_calendar_url}}">To Current Month</a>
 
-    <a href="{%url 'appointment-create' %}">New Appointment</a>
-
+</div>
 {%endblock%}

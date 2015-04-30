@@ -28,16 +28,38 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from postman.api import pm_write
 
 
+#
+'''
+Display messages for users
+'''
+#
+#
 
 def account_message(request):
     context = {}
     template_name = 'accounts/account_message.html'
     return render(request, template_name, context)
 
+#
+'''
+This method is used to trace User instance by ref_id
+'''
+#
+#
 #custom method to trace user_id by ref_id
 def trace_user(ref_id):
     user = UserProfile.objects.get(ref_id=ref_id)
     return user.user
+
+
+#
+'''
+Grand user permissions based on 
+its type
+'''
+#
+#
+
 #method to give permissions to user
 def gain_perms(user):
     #get permission instances
@@ -130,9 +152,6 @@ def account_system_notify(recipient, code, plus):
             pm_write(sender, doc, subject=subject, body=body)
             pm_write(sender, nurse, subject=subject, body=body)
 
-        #except sender not exist
-    #except:
-     #   pass
 
 
 
@@ -192,6 +211,14 @@ def patient_register(request):
         template_name = 'accounts/account_patient_form.html'
         context = {'form1': form1, 'form2':form2}
         return render(request, template_name, context)
+
+
+#
+'''
+Employee registration, need to have perrmisson to create (superuser)
+'''
+#
+#
 
 @permission_required('users.add_employee', raise_exception=True)
 def employee_register(request):
@@ -345,7 +372,7 @@ def userprofile_update(request, ref_id):
 
 #==================================================================================
 #==================================================================================
-#           EMPLOYEE Management
+#           EMPLOYEE MANAGEMENT
 #==================================================================================
 #==================================================================================
 def employee_list_view(request):
@@ -379,7 +406,9 @@ def case_list_view(request, ref_id):
         #get patient medicalinfo instance
         medinfo = patient.medicalinformation
 
+        #split data into pages
         case_list = medinfo.case_set.all().order_by('-updated')
+        #5 items per page
         paginator = Paginator(case_list,5)
 
         page = request.GET.get('page')
@@ -395,7 +424,11 @@ def case_list_view(request, ref_id):
         return render(request, template_name, context)
     else:
         raise PermissionDenied
-
+#
+'''
+Update employee information
+'''
+#
 def employee_update_view(request, ref_id):
     template_name = 'accounts/account_employee_form.html'
     context = {}
@@ -417,8 +450,8 @@ def employee_update_view(request, ref_id):
             form1 = ReceptionistForm(request.POST or None, instance=emp, prefix='e')
 
 
-    except Exception, e:
-        raise e
+    except:
+        pass
 
     profile = user.userprofile
     form2 = EmployeeProfileForm(request.POST or None, instance=profile, prefix='p')

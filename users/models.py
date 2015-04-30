@@ -4,18 +4,32 @@ from localflavor.us.models import USStateField, USZipCodeField, USSocialSecurity
 from django.core.urlresolvers import reverse
 from simple_history.models import HistoricalRecords
 from postman.models import Message
+from datetime import datetime
 
-
-# Create your models here.
+#==================================================================================
+#==================================================================================
+#   Healthnet Locations
+#   'location_code', 'location_name'
+#   can add/and delete
+#
+#==================================================================================
+#==================================================================================
 
 LOCATION_CHOICES = (
     ('01', 'Rochester'),
     ('02', 'Buffalo'),
     ('03', 'New York City'),
     )
+#==================================================================================
+#==================================================================================
+#
+#   Extends django User. 
+#
+#==================================================================================
+#==================================================================================
 
 class UserProfile(models.Model):
-    #history = HistoricalRecords()
+    history = HistoricalRecords()
     location = models.CharField(max_length=2, choices=LOCATION_CHOICES, default='01', verbose_name='Hospital')
     user = models.OneToOneField(User, primary_key=True)
     #reference id. This id is used to hind user primary key
@@ -56,7 +70,12 @@ class UserProfile(models.Model):
         return reverse('patient-transfer', kwargs={'ref_id': self.ref_id})
     def get_add_doctor_url(self):
         return reverse('patient-add-doctor', kwargs={'ref_id': self.ref_id})
-       
+
+    #this is for appointment
+    def get_calendar_url(self):
+        return reverse('calendar', kwargs={ 'year' : datetime.now().year, 'month' : datetime.now().month})
+
+
       
 
        
@@ -79,8 +98,17 @@ class UserProfile(models.Model):
         return reverse('employee-update', kwargs={'ref_id':self.ref_id})
 
 
+#==================================================================================
+#==================================================================================
+#
+#   Employee
+#   Base model for employees (doctor/nurse/support/receptionist)
+#
+#==================================================================================
+#==================================================================================
+
 class Employee(models.Model):
-    #history = HistoricalRecords()
+    history = HistoricalRecords()
     employee = models.OneToOneField(User, primary_key=True, verbose_name="Employee username")
     
     EMPLOYEE_CHOICES = (
@@ -97,9 +125,16 @@ class Employee(models.Model):
     def _employee_info(self):
         info = self.get_employee_type_display() + " - " + self.employee.username + " - "+self.employee.userprofile.get_location_display()
         return info
+#==================================================================================
+#==================================================================================
+#
+#   Doctor
+#
+#==================================================================================
+#==================================================================================
 
 class Doctor(models.Model):
-    #history = HistoricalRecords()
+    history = HistoricalRecords()
     doctor = models.OneToOneField(Employee, primary_key=True, verbose_name="Doctor")
     lisence = models.CharField(max_length=10, blank=True, verbose_name="Lisence")
     specialty = models.CharField(max_length=100, default="Unknown")
@@ -118,9 +153,16 @@ class Doctor(models.Model):
         doctor = doc(doctor=employee)
         return doctor
 
+#==================================================================================
+#==================================================================================
+#
+#   Nurse
+#
+#==================================================================================
+#==================================================================================
 
 class Nurse(models.Model):
-    #history = HistoricalRecords()
+    history = HistoricalRecords()
     nurse = models.OneToOneField(Employee, primary_key=True, verbose_name="Nurse")
     available = models.BooleanField(default=True, verbose_name="Available")
     lisence = models.CharField(max_length=10, blank=True, verbose_name="Lisence")
@@ -139,11 +181,17 @@ class Nurse(models.Model):
     def __str__(self):
         return self.nurse._employee_info() + " - " + self.specialty
 
+#==================================================================================
+#==================================================================================
+#
+#   Receptionist
+#
+#==================================================================================
+#==================================================================================
 
 class Receptionist(models.Model):
-
+    history = HistoricalRecords()
     receptionist = models.OneToOneField(Employee, primary_key=True)
-
     dateJoin = models.DateField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
  
@@ -156,9 +204,13 @@ class Receptionist(models.Model):
 
 
 
-
-
-
+#==================================================================================
+#==================================================================================
+#
+#   Patient
+#
+#==================================================================================
+#==================================================================================
 class Patient(models.Model):
     #history = HistoricalRecords()
     patient = models.OneToOneField(User,primary_key=True, verbose_name="Patient")
@@ -167,6 +219,7 @@ class Patient(models.Model):
     doctors = models.ManyToManyField(Doctor, verbose_name="Doctors", null=True)
     primary_nurse = models.ForeignKey(Nurse, verbose_name="Primary Nurse", related_name="primary_nurse", null=True)
     nurses = models.ManyToManyField(Nurse, verbose_name="Nurses", null=True)
+
     LAST_ACTION_CHOICES = (
         ('N', 'Joined'),
         ('A', 'Admitted'),
@@ -189,7 +242,7 @@ class Patient(models.Model):
         )
         
     def __str__(self):
-        return self.patient.username
+        return self.patient.username + " - " + self.patient.userprofile.get_location_display()
     def get_write_to_doc_url(self):
         return reverse('postman_write', kwargs={'recipients': self.primary_doctor.doctor.employee.username})
     def get_write_to_nurse_url(self):
@@ -197,5 +250,37 @@ class Patient(models.Model):
 
 
 
+
+#==================================================================================
+#==================================================================================
+#
+#   Used by scheduling to verify type of user
+#
+#==================================================================================
+#==================================================================================
+
+def is_patient(user):
+    try:
+        return user.patient!=None
+    except:
+        return False
+
+def is_employee(user):
+    try:
+        return user.employee!=None
+    except:
+        return False
+
+def is_doctor(user):
+    try:
+        return user.employee.doctor!=None
+    except:
+        return False
+
+def is_nurse(user):
+    try:
+        return user.employee.nurse!=None
+    except:
+        return False
 
 

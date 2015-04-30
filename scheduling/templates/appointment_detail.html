@@ -1,14 +1,29 @@
 {%extends "base.html"%}
 
 {%block content%}
-<h1>{{ object.title }}</h1>
-<p>{{ object.description }}</p>
-<p>Begins: {{ object.start_time }}</p>
-<p>Ends: {{ object.end_time }}</p>
-<p>Doctor: {{ object.doctor }}</p>
-<p>Patient: {{ object.patient }}</p>
-<p>Location: {{ object.location }}</p>
+<div class="container">
+<div id="content">
 
-<a href="{%url 'appointment-update' object.pk%}">Edit</a>
-<a href="{%url 'appointment-delete' object.pk%}">Delete</a>
-{%endblock%}
+<div class="page-header">
+  <h1>Appointment Detail<small> {{ object.title }}</small></h1>
+</div>
+<div class="col-md-6 col-md-offset-1">
+	<h4>
+	<p>{{ object.description }}</p>
+	<p>Begins  : {{ object.start_time }}</p>
+	<p>Ends    : {{ object.end_time }}</p>
+	<p>Doctor  : {{ object.doctor }}</p>
+	<p>Patient : {{ object.patient }}</p>
+	<p>Location: {{ object.get_location_display}}</p>
+	</h4>
+	<br>
+
+<button class="btn btn-primary" id="cmd"><span class="glyphicon glyphicon-floppy-disk"></span> Save as PDF</button>
+<a class="btn btn-primary" href="{%url 'appointment-update' object.pk%}">Edit</a>
+<a class="btn btn-primary" href="{%url 'appointment-delete' object.pk%}">Delete</a>
+
+</div>
+
+</div>
+</div>
+{%endblock%} 

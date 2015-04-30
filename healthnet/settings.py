@@ -37,9 +37,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #for databse migration
-    'south',
+    #'south',
     #for shell_plus (automatically import all models)
-    'django_extensions',
+    #'django_extensions',
 
     'users',
     'accounts',
@@ -47,6 +47,10 @@ INSTALLED_APPS = (
     'postman',
     'simple_history',
     'localflavor',
+
+    #apt
+    'scheduling',
+    'pytz',
 
 )
 

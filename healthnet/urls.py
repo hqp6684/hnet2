@@ -24,6 +24,8 @@ urlpatterns = patterns('',
 
 	url(r'^$', 'healthnet.views.home', name='home'),
 
+    url(r'^schedule/', include('scheduling.urls')),
+
 )
 
 handler403 = 'healthnet.views.http403'
