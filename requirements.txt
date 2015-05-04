@@ -55,3 +55,7 @@ Back to top
 If patient didnot initialize their med, doctor can see all funtions
 Number input
 
+Log 5/4
+Appointment start/end time validation
+
+

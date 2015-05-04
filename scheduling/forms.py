@@ -4,6 +4,8 @@ from scheduling.models import Appointment
 #from bootstrap3_datetime.widgets import DateTimePicker
 from users.models import is_patient, is_nurse, is_employee, is_doctor, Patient, Doctor
 
+from datetime import datetime
+from django.utils import timezone
 
 class AppointmentForm(ModelForm):
 
@@ -20,6 +22,18 @@ class AppointmentForm(ModelForm):
             'location': forms.Select(attrs={'class':'form-control'}),
 
         }
+
+    def clean_start_time(self):
+        start = self.cleaned_data['start_time']
+        if start < timezone.now() :
+            raise forms.ValidationError('Invalid start time')
+        return start
+    def clean_end_time(self):
+        start = self.cleaned_data['start_time']
+        end = self.cleaned_data['end_time']
+        if end <= start:
+            raise forms.ValidationError('Invalid end time')
+        return end
 
 
     def set_query_sets(self, user):
